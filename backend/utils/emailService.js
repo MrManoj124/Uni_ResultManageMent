@@ -39,7 +39,11 @@ export const senderVerificationEmail = async (email, token) => {
         console.error(' ❌ Email sending error: ',error);
         throw new Error('Failed to send verification email');
     }
-
 };
+
+//Send password reset email
+export const sendPasswordResetEmail=async (email, token) => {
+    const 
+}
 
 
