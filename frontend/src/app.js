@@ -1,8 +1,8 @@
 // src/App.js
 import React, { useState } from 'react';
-import LoginPage from './components/LoginPage';
-import StudentDashboard from './components/StudentDashboard';
-import AdminDashboard from './components/AdminDashboard';
+import LoginPage from './components/loginpage';
+import StudentDashboard from './components/studentdashboard';
+import AdminDashboard from './components/admindashboard';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);

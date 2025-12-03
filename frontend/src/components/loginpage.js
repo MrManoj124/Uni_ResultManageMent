@@ -3,7 +3,7 @@ import {GraduationCap, User, Lock} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';  
 
-const LoginPage = ({onLogin}) => {
+const loginPage = ({onLogin}) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -92,4 +92,4 @@ return (
 
 
 
-export default LoginPage;
+export default loginPage;
