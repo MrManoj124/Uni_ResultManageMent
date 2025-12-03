@@ -1,31 +1,30 @@
-import React,{useState, useEffect} from 'react';
-import {GraduationCap, User, Lock} from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';  
+// src/components/LoginPage.jsx
+import React, { useState } from 'react';
+import { GraduationCap, User, Lock } from 'lucide-react';
+import { authAPI } from '../services/api';
 
-const loginPage = ({onLogin}) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    //const navigate = useNavigate();
-}
+const loginPage = ({ onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-        const user = initialData.users.find(u => u.username === username && u.password === password);
-        if (user) {
-            onLogin(user);
-
-        } else {
-            setError('Invalid username or password');
-        }   
+      const response = await authAPI.login(username, password);
+      onLogin(response.user);
     } catch (err) {
-        setError('An error occurred during login');
+      setError(err.response?.data?.error || 'Login failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
-};
+  };
 
-return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
@@ -44,7 +43,9 @@ return (
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Username
+            </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -54,12 +55,15 @@ return (
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter username"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -69,15 +73,17 @@ return (
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter password"
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all shadow-lg hover:shadow-xl"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Sign In
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 
@@ -88,8 +94,7 @@ return (
         </div>
       </div>
     </div>
-);
-
-
+  );
+};
 
 export default loginPage;
