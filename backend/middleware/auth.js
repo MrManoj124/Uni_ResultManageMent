@@ -1,42 +1,69 @@
-import jwt from 'jsonwebtoken';
 
-export const authenticateToken = (req, res, next) => {
-    try{
-        //Get token from header
-        const authHeader = req.header('Authorization');
-        const token = authHeader?.replace('Bearer','');
+// ==========================================
+// middleware/auth.js - JWT Authentication
+// ==========================================
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-        if(!token){
-            return res.status(401).json({
-                success:false,
-                message:'Access denied. No token provided.'
-            });
-        }
+// Authenticate user
+exports.authenticate = async (req, res, next) => {
+  try {
+    let token;
 
-        //Verify token 
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = verified;
-        next();
-    }catch(error){
-        if(error.name === 'ToeknExpiredError'){
-            return res.status(401).json({
-                success:false,
-                message:'Token expired. Please Login Again.'
-            });
-        }
-        return res.status(400).json({
-            success:false,
-            message:'Invalid Token.'
-        });
+    // Check for token in header
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
     }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: 'Not authorized to access this route'
+      });
+    }
+
+    try {
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Get user from token
+      req.user = await User.findById(decoded.id).select('-password');
+
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      if (!req.user.isActive) {
+        return res.status(403).json({
+          success: false,
+          error: 'Account has been deactivated'
+        });
+      }
+
+      next();
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        error: 'Not authorized to access this route'
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
 };
 
-//Generate JWT token
-export const generateToken = (userId) => {
-    return jwt.sign(
-        { id: userId },
-        process.env.JWT_SECRET,
-        {expiresIn: process.env.JWT_EXPIRE || '7d'}
-    );
+// Authorize roles
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: `User role '${req.user.role}' is not authorized to access this route`
+      });
+    }
+    next();
+  };
 };
-
