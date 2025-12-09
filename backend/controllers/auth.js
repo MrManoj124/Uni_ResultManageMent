@@ -4,8 +4,8 @@ const Student = require('../models/Student');
 const Staff = require('../models/Staff');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { sendEmail } = require('../utils/emails');
-const { sendNotification } = require('../utils/notification');
+const sendEmail = require('../utils/email');
+const sendNotification = require('../utils/notification');
 
 // Generate JWT token
 const generateToken = (userId, role) => {
