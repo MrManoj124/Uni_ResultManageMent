@@ -1,5 +1,5 @@
 const Notification = require('../models/Notification');
-const { sendEmail } = require('./emails');
+const { sendEmail } = require('./email');
 
 exports.sendNotification = async (notificationData) => {
   try {
