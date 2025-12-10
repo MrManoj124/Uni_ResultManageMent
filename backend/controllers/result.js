@@ -439,3 +439,39 @@ exports.deleteResult = async (req, res) => {
     });
   }
 };
+
+
+// Get result by ID
+exports.getResultById = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id)
+      .populate('courseId', 'code name credits semester')
+      .populate('uploadedBy', 'name email')
+      .populate('publishedBy', 'name');
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    // Check authorization
+    if (req.user.role === 'student' && result.studentId !== req.user.studentId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { result }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
