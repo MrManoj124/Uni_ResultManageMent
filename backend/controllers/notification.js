@@ -154,3 +154,41 @@ exports.deleteNotification = async (req, res) => {
     });
   }
 };
+
+
+// Send system announcement (Admin only)
+exports.sendAnnouncement = async (req, res) => {
+  try {
+    const { title, message, recipientRole, priority } = req.body;
+
+    // Get all users of the specified role
+    const User = require('../models/User');
+    const users = recipientRole === 'all' 
+      ? await User.find({ isActive: true })
+      : await User.find({ role: recipientRole, isActive: true });
+
+    const notifications = users.map(user => ({
+      recipient: user._id,
+      recipientRole: user.role,
+      type: 'system_announcement',
+      title,
+      message,
+      priority: priority || 'medium',
+      channels: { email: true, push: true, inApp: true },
+      sender: req.user.id
+    }));
+
+    await Notification.insertMany(notifications);
+
+    res.json({
+      success: true,
+      message: `Announcement sent to ${users.length} users`,
+      data: { recipientCount: users.length }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
