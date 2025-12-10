@@ -289,3 +289,41 @@ exports.updateResult = async (req, res) => {
     });
   }
 };
+
+// Submit result for approval (Staff → Admin)
+exports.submitForApproval = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    // Check if user uploaded this result
+    if (result.uploadedBy.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only submit results you uploaded'
+      });
+    }
+
+    await result.submitForApproval(req.user.id);
+
+    // Notify admin
+    // TODO: Implement notification to admin
+
+    res.json({
+      success: true,
+      message: 'Result submitted for approval',
+      data: { result }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
