@@ -103,3 +103,65 @@ exports.getStudentResults = async (req, res) => {
     });
   }
 };
+
+// Add single result
+exports.addResult = async (req, res) => {
+  try {
+    const { studentId, courseId, marks, academicYear, semester, examType } = req.body;
+
+    // Verify student exists
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Verify course exists
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        error: 'Course not found'
+      });
+    }
+
+    // Calculate grade
+    const gradeInfo = calculateGrade(marks);
+
+    // Create result
+    const result = await Result.create({
+      studentId,
+      courseId,
+      marks,
+      grade: gradeInfo.grade,
+      gradePoints: gradeInfo.points,
+      academicYear,
+      semester: semester || course.semester,
+      examType: examType || 'Final',
+      uploadedBy: req.user.id,
+      status: 'draft'
+    });
+
+    const populatedResult = await Result.findById(result._id)
+      .populate('courseId', 'code name credits');
+
+    res.status(201).json({
+      success: true,
+      message: 'Result added successfully',
+      data: { result: populatedResult }
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Result already exists for this student-course combination'
+      });
+    }
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
