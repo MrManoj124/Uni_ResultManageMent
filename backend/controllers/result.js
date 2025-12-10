@@ -227,3 +227,65 @@ exports.bulkUploadResults = async (req, res) => {
     });
   }
 };
+
+// Update result
+exports.updateResult = async (req, res) => {
+  try {
+    const { marks } = req.body;
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    // Check if user has permission to edit
+    if (req.user.role === 'staff' && result.uploadedBy.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only edit results you uploaded'
+      });
+    }
+
+    // If result is published, only admin can edit
+    if (result.status === 'published' && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Cannot edit published results. Please contact admin.'
+      });
+    }
+
+    // Update marks and recalculate grade
+    if (marks !== undefined) {
+      const gradeInfo = calculateGrade(marks);
+      result.marks = marks;
+      result.grade = gradeInfo.grade;
+      result.gradePoints = gradeInfo.points;
+    }
+
+    // Update other fields
+    Object.keys(req.body).forEach(key => {
+      if (key !== 'marks' && req.body[key] !== undefined) {
+        result[key] = req.body[key];
+      }
+    });
+
+    await result.save();
+
+    const updatedResult = await Result.findById(result._id)
+      .populate('courseId', 'code name credits');
+
+    res.json({
+      success: true,
+      message: 'Result updated successfully',
+      data: { result: updatedResult }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
