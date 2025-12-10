@@ -55,3 +55,51 @@ exports.getAllResults = async (req, res) => {
     });
   }
 };
+
+// Get student results with GPA
+exports.getStudentResults = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Check authorization
+    if (req.user.role === 'student' && req.user.studentId !== studentId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
+      });
+    }
+
+    const results = await Result.find({ 
+      studentId,
+      status: 'published'
+    }).populate('courseId', 'code name credits semester');
+
+    // Calculate GPA
+    let totalPoints = 0;
+    let totalCredits = 0;
+
+    results.forEach(result => {
+      if (result.courseId) {
+        totalPoints += result.gradePoints * result.courseId.credits;
+        totalCredits += result.courseId.credits;
+      }
+    });
+
+    const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+
+    res.json({
+      success: true,
+      data: {
+        results,
+        gpa,
+        totalCredits,
+        totalCourses: results.length
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
