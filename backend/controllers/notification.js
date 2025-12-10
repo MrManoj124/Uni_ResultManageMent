@@ -42,3 +42,19 @@ exports.getNotifications = async (req, res) => {
     });
   }
 };
+
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const count = await Notification.getUnreadCount(req.user.id);
+
+    res.json({
+      success: true,
+      data: { unreadCount: count }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
