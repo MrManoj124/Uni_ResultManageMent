@@ -29,3 +29,31 @@ exports.getDashboardStats = async (req, res) => {
     });
   }
 };
+
+// Get grade distribution
+exports.getGradeDistribution = async (req, res) => {
+  try {
+    const { courseId, semester, academicYear } = req.query;
+
+    const matchQuery = { status: 'published' };
+    if (courseId) matchQuery.courseId = courseId;
+    if (semester) matchQuery.semester = semester;
+    if (academicYear) matchQuery.academicYear = academicYear;
+
+    const distribution = await Result.aggregate([
+      { $match: matchQuery },
+      { $group: { _id: '$grade', count: { $sum: 1 } } },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: { distribution }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
