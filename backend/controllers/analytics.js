@@ -57,3 +57,40 @@ exports.getGradeDistribution = async (req, res) => {
     });
   }
 };
+
+
+// Get pass rate
+exports.getPassRate = async (req, res) => {
+  try {
+    const { courseId, semester, academicYear } = req.query;
+
+    const matchQuery = { status: 'published' };
+    if (courseId) matchQuery.courseId = courseId;
+    if (semester) matchQuery.semester = semester;
+    if (academicYear) matchQuery.academicYear = academicYear;
+
+    const totalResults = await Result.countDocuments(matchQuery);
+    const passedResults = await Result.countDocuments({ 
+      ...matchQuery,
+      grade: { $ne: 'F' }
+    });
+
+    const passRate = totalResults > 0 ? ((passedResults / totalResults) * 100).toFixed(2) : 0;
+
+    res.json({
+      success: true,
+      data: {
+        totalResults,
+        passedResults,
+        failedResults: totalResults - passedResults,
+        passRate: parseFloat(passRate)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
