@@ -77,3 +77,34 @@ exports.createNotification = async (req, res) => {
     });
   }
 };
+
+
+// Mark notification as read
+exports.markAsRead = async (req, res) => {
+  try {
+    const notification = await Notification.findOne({
+      _id: req.params.id,
+      recipient: req.user.id
+    });
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        error: 'Notification not found'
+      });
+    }
+
+    await notification.markAsRead();
+
+    res.json({
+      success: true,
+      message: 'Notification marked as read',
+      data: { notification }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
