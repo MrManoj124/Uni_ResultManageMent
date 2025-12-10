@@ -397,3 +397,45 @@ exports.publishResult = async (req, res) => {
     });
   }
 };
+
+// Delete result
+exports.deleteResult = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id);
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    // Check permissions
+    if (req.user.role === 'staff' && result.uploadedBy.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only delete results you uploaded'
+      });
+    }
+
+    // Cannot delete published results (admin only)
+    if (result.status === 'published' && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Cannot delete published results'
+      });
+    }
+
+    await Result.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: 'Result deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
