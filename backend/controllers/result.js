@@ -165,3 +165,65 @@ exports.addResult = async (req, res) => {
     });
   }
 };
+
+
+// Bulk upload results
+exports.bulkUploadResults = async (req, res) => {
+  try {
+    const { results } = req.body;
+    const createdResults = [];
+    const errors = [];
+
+    for (let i = 0; i < results.length; i++) {
+      try {
+        const { studentId, courseId, marks, academicYear } = results[i];
+
+        // Verify student and course
+        const student = await Student.findOne({ studentId });
+        const course = await Course.findById(courseId);
+
+        if (!student) {
+          errors.push({ row: i + 1, error: `Student ${studentId} not found` });
+          continue;
+        }
+
+        if (!course) {
+          errors.push({ row: i + 1, error: `Course not found` });
+          continue;
+        }
+
+        const gradeInfo = calculateGrade(marks);
+
+        const result = await Result.create({
+          studentId,
+          courseId,
+          marks,
+          grade: gradeInfo.grade,
+          gradePoints: gradeInfo.points,
+          academicYear,
+          uploadedBy: req.user.id,
+          status: 'draft'
+        });
+
+        createdResults.push(result);
+      } catch (error) {
+        errors.push({ row: i + 1, error: error.message });
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Bulk upload completed',
+      data: {
+        created: createdResults.length,
+        errors: errors.length,
+        errorDetails: errors
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
