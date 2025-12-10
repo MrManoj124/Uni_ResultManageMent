@@ -58,3 +58,22 @@ exports.getUnreadCount = async (req, res) => {
     });
   }
 };
+
+
+// Create notification (Admin/Staff)
+exports.createNotification = async (req, res) => {
+  try {
+    const notification = await Notification.create(req.body);
+
+    res.status(201).json({
+      success: true,
+      message: 'Notification created successfully',
+      data: { notification }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
