@@ -327,3 +327,73 @@ exports.submitForApproval = async (req, res) => {
     });
   }
 };
+
+// Publish result (Admin only)
+exports.publishResult = async (req, res) => {
+  try {
+    const result = await Result.findById(req.params.id)
+      .populate('courseId', 'code name credits')
+      .populate('studentId');
+
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        error: 'Result not found'
+      });
+    }
+
+    await result.publish(req.user.id);
+
+    // Get student details
+    const student = await Student.findOne({ studentId: result.studentId });
+    
+    if (student) {
+      // Send notification
+      await Notification.create({
+        recipient: student.userId,
+        recipientRole: 'student',
+        type: 'result_published',
+        title: 'New Result Published',
+        message: `Your result for ${result.courseId.name} has been published. Grade: ${result.grade}`,
+        data: {
+          resultId: result._id,
+          courseCode: result.courseId.code,
+          courseName: result.courseId.name,
+          grade: result.grade,
+          marks: result.marks
+        },
+        priority: 'high',
+        channels: { email: true, push: true, inApp: true },
+        actionUrl: `/student/results/${result._id}`
+      });
+
+      // Send email
+      await sendEmail({
+        to: student.email,
+        subject: 'New Result Published - ResultPro',
+        template: 'resultPublished',
+        data: {
+          studentName: student.name.fullName || student.name,
+          courseCode: result.courseId.code,
+          courseName: result.courseId.name,
+          grade: result.grade,
+          marks: result.marks,
+          credits: result.courseId.credits,
+          gradePoints: result.gradePoints,
+          cgpa: '0.00' // Calculate from all results
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Result published successfully',
+      data: { result }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
