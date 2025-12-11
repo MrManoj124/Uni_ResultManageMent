@@ -328,3 +328,60 @@ exports.getRecentActivities = async (req, res) => {
 };
 
 
+// Export data for reports
+exports.exportData = async (req, res) => {
+  try {
+    const { type, format = 'json' } = req.query;
+
+    let data;
+
+    switch (type) {
+      case 'students':
+        data = await Student.find({ 'enrollment.status': 'Active' })
+          .select('studentId name.fullName email program batch enrollmentYear academicInfo.currentGPA');
+        break;
+
+      case 'courses':
+        data = await Course.find({ isActive: true })
+          .select('code name credits semester department');
+        break;
+
+      case 'results':
+        data = await Result.find({ status: 'published' })
+          .populate('courseId', 'code name credits')
+          .select('studentId courseId marks grade gradePoints academicYear');
+        break;
+
+      default:
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid export type. Use: students, courses, or results'
+        });
+    }
+
+    // Format based on requested format
+    if (format === 'csv') {
+      // TODO: Implement CSV conversion
+      return res.status(501).json({
+        success: false,
+        error: 'CSV export not yet implemented'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        type,
+        count: data.length,
+        records: data
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
