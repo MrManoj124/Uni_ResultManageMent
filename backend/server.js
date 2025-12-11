@@ -75,22 +75,26 @@ app.get('/', (req, res) => {
   });
 });
 
-// Import routes
-const authRoutes = require('./routes/authroute');
-//const userRoutes = require('./routes/user.routes');
-const studentRoutes = require('./routes/Studentroute');
-const courseRoutes = require('./routes/Courseroute');
-const AdminRoutes = require('./routes/Adminroute');
-const staffRoutes = require('./routes/Staffroute');
+// Import all routes
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const studentRoutes = require('./routes/student.routes');
+const courseRoutes = require('./routes/course.routes');
+const resultRoutes = require('./routes/result.routes');
+const staffRoutes = require('./routes/staff.routes');
+const notificationRoutes = require('./routes/notification.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
-//app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/courses', courseRoutes);
-//app.use('/api/results', resultRoutes);
+app.use('/api/results', resultRoutes);
 app.use('/api/staff', staffRoutes);
-app.use('/api/admin', AdminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
 
 // Error handling
 const errorHandler = require('./middleware/errorHandler');
