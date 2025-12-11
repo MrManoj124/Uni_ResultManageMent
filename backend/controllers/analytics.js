@@ -278,3 +278,53 @@ exports.getTopPerformers = async (req, res) => {
 };
 
 
+// Get recent activities (Admin dashboard)
+exports.getRecentActivities = async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+
+    // Get recent results
+    const recentResults = await Result.find()
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .populate('courseId', 'code name')
+      .populate('uploadedBy', 'name')
+      .select('studentId marks grade status createdAt uploadedBy courseId');
+
+    // Get recent students
+    const recentStudents = await Student.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('studentId name.fullName program createdAt');
+
+    // Format activities
+    const activities = [
+      ...recentResults.map(result => ({
+        type: 'result',
+        action: result.status === 'published' ? 'published' : 'uploaded',
+        description: `Result ${result.status} for ${result.studentId} - ${result.courseId?.code}`,
+        by: result.uploadedBy?.name || 'Unknown',
+        timestamp: result.createdAt
+      })),
+      ...recentStudents.map(student => ({
+        type: 'student',
+        action: 'registered',
+        description: `New student registered: ${student.name?.fullName || student.studentId}`,
+        timestamp: student.createdAt
+      }))
+    ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, parseInt(limit));
+
+    res.json({
+      success: true,
+      data: { activities }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
