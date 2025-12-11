@@ -180,3 +180,37 @@ exports.getStudentPerformance = async (req, res) => {
 };
 
 
+// Get department statistics
+exports.getDepartmentStats = async (req, res) => {
+  try {
+    const departments = await Course.distinct('department');
+    const stats = [];
+
+    for (const department of departments) {
+      const courses = await Course.countDocuments({ department, isActive: true });
+      const staff = await User.countDocuments({ 
+        department, 
+        role: 'staff', 
+        isActive: true 
+      });
+
+      stats.push({
+        department,
+        courses,
+        staff
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { departments: stats }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
