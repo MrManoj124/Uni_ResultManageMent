@@ -214,3 +214,67 @@ exports.getDepartmentStats = async (req, res) => {
 };
 
 
+exports.getTopPerformers = async (req, res) => {
+  try {
+    const { limit = 10, semester, academicYear } = req.query;
+
+    const matchQuery = { status: 'published' };
+    if (semester) matchQuery.semester = semester;
+    if (academicYear) matchQuery.academicYear = academicYear;
+
+    const results = await Result.find(matchQuery).populate('courseId', 'credits');
+
+    // Calculate GPA for each student
+    const studentGPAs = {};
+    results.forEach(result => {
+      if (!studentGPAs[result.studentId]) {
+        studentGPAs[result.studentId] = { 
+          studentId: result.studentId,
+          points: 0, 
+          credits: 0,
+          courses: 0
+        };
+      }
+      const credits = result.courseId?.credits || 0;
+      studentGPAs[result.studentId].points += result.gradePoints * credits;
+      studentGPAs[result.studentId].credits += credits;
+      studentGPAs[result.studentId].courses++;
+    });
+
+    // Calculate GPA and sort
+    const topPerformers = Object.values(studentGPAs)
+      .map(data => ({
+        studentId: data.studentId,
+        gpa: data.credits > 0 ? (data.points / data.credits).toFixed(2) : '0.00',
+        totalCredits: data.credits,
+        totalCourses: data.courses
+      }))
+      .sort((a, b) => parseFloat(b.gpa) - parseFloat(a.gpa))
+      .slice(0, parseInt(limit));
+
+    // Get student details
+    const Student = require('../models/Student');
+    const enrichedPerformers = await Promise.all(
+      topPerformers.map(async (performer) => {
+        const student = await Student.findOne({ studentId: performer.studentId });
+        return {
+          ...performer,
+          name: student?.name?.fullName || student?.name || 'Unknown',
+          program: student?.program || 'Unknown'
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      data: { topPerformers: enrichedPerformers }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
