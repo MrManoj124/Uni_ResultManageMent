@@ -696,4 +696,4 @@ exports.getStudentStatistics = async (req, res) => {
   }
 };
 
-//module.exports = exports;
+module.exports = exports;
