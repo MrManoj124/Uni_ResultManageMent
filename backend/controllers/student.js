@@ -281,3 +281,60 @@ exports.updateStudent = async (req, res) => {
     });
   }
 };
+
+
+// Delete student (soft delete)
+exports.deleteStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await Student.findOne({ studentId });
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Check if student has published results
+    const hasPublishedResults = await Result.countDocuments({
+      studentId,
+      status: 'published'
+    });
+
+    if (hasPublishedResults > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot delete student with published results. Please archive the student instead.',
+        suggestion: 'Use the deactivate endpoint to archive this student.'
+      });
+    }
+
+    // Soft delete - change enrollment status
+    student.enrollment.status = 'Withdrawn';
+    student.isActive = false;
+    await student.save();
+
+    // Also deactivate user account
+    await User.findByIdAndUpdate(student.userId, { isActive: false });
+
+    // Delete unpublished results
+    await Result.deleteMany({
+      studentId,
+      status: { $ne: 'published' }
+    });
+
+    res.json({
+      success: true,
+      message: 'Student deactivated successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
