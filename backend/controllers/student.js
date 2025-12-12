@@ -67,3 +67,53 @@ exports.getAllStudents = async (req, res) => {
     });
   }
 };
+
+
+// Get single student by ID
+exports.getStudentById = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    
+    // Check authorization - students can only view their own profile
+    if (req.user.role === 'student' && req.user.studentId !== studentId) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only view your own profile'
+      });
+    }
+
+    const student = await Student.findOne({ studentId })
+      .populate('userId', 'username email phone isEmailVerified lastLogin')
+      .populate('academicInfo.advisor', 'name.fullName staffId email designation');
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Get additional statistics
+    const resultCount = await Result.countDocuments({ 
+      studentId,
+      status: 'published'
+    });
+
+    res.json({
+      success: true,
+      data: {
+        student,
+        statistics: {
+          totalResults: resultCount,
+          currentGPA: student.academicInfo.currentGPA,
+          totalCredits: student.academicInfo.totalCreditsEarned
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
