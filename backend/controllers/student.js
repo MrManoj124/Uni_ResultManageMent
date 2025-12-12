@@ -338,3 +338,79 @@ exports.deleteStudent = async (req, res) => {
 };
 
 
+// Get student results
+exports.getStudentResults = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    
+    // Check authorization
+    if (req.user.role === 'student' && req.user.studentId !== studentId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
+      });
+    }
+
+    // Verify student exists
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    const results = await Result.find({ 
+      studentId,
+      status: 'published'
+    })
+    .populate('courseId', 'code name credits semester department')
+    .sort({ 'courseId.semester': 1, 'courseId.code': 1 });
+
+    // Calculate GPA
+    let totalPoints = 0;
+    let totalCredits = 0;
+
+    results.forEach(result => {
+      if (result.courseId) {
+        totalPoints += result.gradePoints * result.courseId.credits;
+        totalCredits += result.courseId.credits;
+      }
+    });
+
+    const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+
+    // Group by semester
+    const resultsBySemester = {};
+    results.forEach(result => {
+      const semester = result.courseId?.semester || 'Unknown';
+      if (!resultsBySemester[semester]) {
+        resultsBySemester[semester] = [];
+      }
+      resultsBySemester[semester].push(result);
+    });
+
+    res.json({
+      success: true,
+      data: {
+        studentId,
+        studentName: student.name.fullName,
+        results,
+        resultsBySemester,
+        summary: {
+          gpa,
+          cgpa: gpa, // Same as GPA for now
+          totalCredits,
+          totalCourses: results.length,
+          passedCourses: results.filter(r => r.grade !== 'F').length,
+          failedCourses: results.filter(r => r.grade === 'F').length
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
