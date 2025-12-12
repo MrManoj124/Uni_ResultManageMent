@@ -505,3 +505,32 @@ exports.getStudentSummary = async (req, res) => {
     });
   }
 };
+
+
+// Get students by program
+exports.getStudentsByProgram = async (req, res) => {
+  try {
+    const { program } = req.params;
+
+    const students = await Student.find({ 
+      program,
+      'enrollment.status': 'Active'
+    })
+    .select('studentId name.fullName email currentSemester academicInfo.currentGPA')
+    .sort({ studentId: 1 });
+
+    res.json({
+      success: true,
+      data: {
+        program,
+        count: students.length,
+        students
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
