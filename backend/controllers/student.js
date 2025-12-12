@@ -449,3 +449,59 @@ exports.calculateStudentGPA = async (req, res) => {
     });
   }
 };
+
+
+// Get student summary/dashboard
+exports.getStudentSummary = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    // Check authorization
+    if (req.user.role === 'student' && req.user.studentId !== studentId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
+      });
+    }
+
+    const student = await Student.findOne({ studentId })
+      .populate('academicInfo.advisor', 'name.fullName email');
+
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Get results summary
+    const summary = await student.getResultsSummary();
+
+    res.json({
+      success: true,
+      data: {
+        student: {
+          studentId: student.studentId,
+          name: student.name.fullName,
+          email: student.email,
+          program: student.program,
+          batch: student.batch,
+          currentSemester: student.currentSemester,
+          advisor: student.academicInfo.advisor
+        },
+        academic: {
+          currentGPA: student.academicInfo.currentGPA,
+          cumulativeGPA: student.academicInfo.cumulativeGPA,
+          totalCreditsEarned: student.academicInfo.totalCreditsEarned,
+          academicStanding: student.academicInfo.academicStanding
+        },
+        performance: summary
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
