@@ -563,3 +563,58 @@ exports.getStudentsByBatch = async (req, res) => {
     });
   }
 };
+
+
+
+
+// Update student enrollment status
+exports.updateEnrollmentStatus = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ['Active', 'Inactive', 'Graduated', 'Suspended', 'Withdrawn'];
+    
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    const student = await Student.findOne({ studentId });
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    student.enrollment.status = status;
+    
+    // Update graduation date if status is Graduated
+    if (status === 'Graduated') {
+      student.enrollment.actualGraduation = new Date();
+    }
+
+    await student.save();
+
+    // Update user account status
+    const isActive = ['Active', 'Graduated'].includes(status);
+    await User.findByIdAndUpdate(student.userId, { isActive });
+
+    res.json({
+      success: true,
+      message: `Student enrollment status updated to ${status}`,
+      data: { student }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
