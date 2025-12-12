@@ -79,11 +79,11 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authroute');
 const userRoutes = require('./routes/user.routes');
 const studentRoutes = require('./routes/Studentroute');
-const courseRoutes = require('./routes/course.routes');
-const resultRoutes = require('./routes/result.routes');
-const staffRoutes = require('./routes/staff.routes');
-const notificationRoutes = require('./routes/notification.routes');
-const analyticsRoutes = require('./routes/analytics.routes');
+const courseRoutes = require('./routes/Courseroute');
+const resultRoutes = require('./routes/Resultroute');
+const staffRoutes = require('./routes/Staffroute');
+const notificationRoutes = require('./routes/Notificationroute');
+const analyticsRoutes = require('./routes/Analyticsroute');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
