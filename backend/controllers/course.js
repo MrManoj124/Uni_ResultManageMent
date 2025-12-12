@@ -1,5 +1,5 @@
 const Course = require('../models/Course');
-const Result = require('../models/result');
+const Result = require('../models/Results');
 
 // Get all courses
 exports.getAllCourses = async (req, res) => {
