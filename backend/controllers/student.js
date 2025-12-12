@@ -414,3 +414,38 @@ exports.getStudentResults = async (req, res) => {
     });
   }
 };
+
+
+// Calculate student GPA
+exports.calculateStudentGPA = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Calculate and update GPA
+    const gpaData = await student.calculateGPA();
+
+    res.json({
+      success: true,
+      message: 'GPA calculated and updated successfully',
+      data: {
+        studentId,
+        currentGPA: gpaData.currentGPA,
+        cumulativeGPA: gpaData.cumulativeGPA,
+        totalCredits: gpaData.totalCredits
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
