@@ -1,4 +1,4 @@
-const Course = require('../models/course');
+const Course = require('../models/Course');
 const Result = require('../models/result');
 
 // Get all courses
