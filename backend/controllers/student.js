@@ -534,3 +534,32 @@ exports.getStudentsByProgram = async (req, res) => {
     });
   }
 };
+
+
+// Get students by batch
+exports.getStudentsByBatch = async (req, res) => {
+  try {
+    const { batch } = req.params;
+
+    const students = await Student.find({ 
+      batch,
+      'enrollment.status': 'Active'
+    })
+    .select('studentId name.fullName email program currentSemester')
+    .sort({ studentId: 1 });
+
+    res.json({
+      success: true,
+      data: {
+        batch,
+        count: students.length,
+        students
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
