@@ -1,7 +1,7 @@
-const Student = require('../models/student');
-const Course = require('../models/course');
-const Result = require('../models/result');
-const User = require('../models/user');
+const Student = require('../models/Student');
+const Course = require('../models/Course');
+const Result = require('../models/Results');
+const User = require('../models/User');
 
 // Get dashboard statistics
 exports.getDashboardStats = async (req, res) => {
