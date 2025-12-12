@@ -618,3 +618,38 @@ exports.updateEnrollmentStatus = async (req, res) => {
 };
 
 
+// Add note to student profile (Admin/Staff)
+exports.addStudentNote = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { content } = req.body;
+
+    const student = await Student.findOne({ studentId });
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    student.notes.push({
+      content,
+      addedBy: req.user.id,
+      addedAt: new Date()
+    });
+
+    await student.save();
+
+    res.json({
+      success: true,
+      message: 'Note added successfully',
+      data: { student }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
