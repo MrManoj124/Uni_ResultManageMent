@@ -208,3 +208,76 @@ exports.addStudent = async (req, res) => {
     });
   }
 };
+
+
+// Update student
+exports.updateStudent = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const updates = req.body;
+
+    // Find student
+    const student = await Student.findOne({ studentId });
+    
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        error: 'Student not found'
+      });
+    }
+
+    // Check authorization
+    // Students can update their own profile (limited fields)
+    // Admin can update everything
+    if (req.user.role === 'student') {
+      if (req.user.studentId !== studentId) {
+        return res.status(403).json({
+          success: false,
+          error: 'You can only update your own profile'
+        });
+      }
+
+      // Students can only update specific fields
+      const allowedFields = ['phone', 'address', 'guardian'];
+      const updateFields = {};
+      
+      allowedFields.forEach(field => {
+        if (updates[field] !== undefined) {
+          updateFields[field] = updates[field];
+        }
+      });
+
+      Object.assign(student, updateFields);
+    } else {
+      // Admin can update all fields
+      Object.assign(student, updates);
+    }
+
+    // Update fullName if first or last name changed
+    if (updates.name?.firstName || updates.name?.lastName) {
+      student.name.fullName = `${student.name.firstName} ${student.name.lastName}`;
+    }
+
+    await student.save();
+
+    // Also update user email if changed
+    if (updates.email && req.user.role === 'admin') {
+      await User.findByIdAndUpdate(student.userId, { email: updates.email });
+    }
+
+    const updatedStudent = await Student.findOne({ studentId })
+      .populate('userId', 'username email')
+      .populate('academicInfo.advisor', 'name.fullName staffId');
+
+    res.json({
+      success: true,
+      message: 'Student updated successfully',
+      data: { student: updatedStudent }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
