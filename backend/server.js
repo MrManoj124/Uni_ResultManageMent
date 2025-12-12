@@ -76,7 +76,7 @@ app.get('/', (req, res) => {
 });
 
 // Import all routes
-const authRoutes = require('./routes/auth.routes');
+const authRoutes = require('./routes/authroutes');
 const userRoutes = require('./routes/user.routes');
 const studentRoutes = require('./routes/student.routes');
 const courseRoutes = require('./routes/course.routes');
