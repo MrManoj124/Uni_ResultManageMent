@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const Result = require('../models/Results');
+const {sendEmail}   = require('../utils/email');
 
 
 // Get student results
