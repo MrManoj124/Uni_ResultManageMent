@@ -117,3 +117,94 @@ exports.getStudentById = async (req, res) => {
     });
   }
 };
+
+
+// Add new student
+exports.addStudent = async (req, res) => {
+  try {
+    const studentData = req.body;
+
+    // Check if student ID already exists
+    const existingStudent = await Student.findOne({ 
+      studentId: studentData.studentId 
+    });
+    
+    if (existingStudent) {
+      return res.status(400).json({
+        success: false,
+        error: 'Student ID already exists'
+      });
+    }
+
+    // Check if email already exists
+    const existingEmail = await Student.findOne({ 
+      email: studentData.email 
+    });
+    
+    if (existingEmail) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email already registered'
+      });
+    }
+
+    // Generate temporary password
+    const username = studentData.studentId;
+    const tempPassword = 'student' + Math.random().toString(36).slice(-8);
+    
+    // Create user account
+    const user = await User.create({
+      username,
+      email: studentData.email,
+      password: tempPassword,
+      role: 'student',
+      name: `${studentData.name.firstName} ${studentData.name.lastName}`,
+      studentId: studentData.studentId,
+      isEmailVerified: true // Admin-created accounts are pre-verified
+    });
+
+    // Create student profile
+    const student = await Student.create({
+      ...studentData,
+      userId: user._id,
+      'name.fullName': `${studentData.name.firstName} ${studentData.name.lastName}`
+    });
+
+    // Send welcome email with credentials
+    await sendEmail({
+      to: studentData.email,
+      subject: 'Welcome to ResultPro - Your Account Details',
+      template: 'studentCredentials',
+      data: {
+        name: `${studentData.name.firstName} ${studentData.name.lastName}`,
+        studentId: studentData.studentId,
+        username,
+        password: tempPassword,
+        loginUrl: process.env.FRONTEND_URL + '/login'
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Student added successfully. Login credentials sent to email.',
+      data: {
+        student,
+        credentials: {
+          username,
+          temporaryPassword: tempPassword,
+          note: 'Please ask the student to change their password after first login'
+        }
+      }
+    });
+  } catch (error) {
+    // Rollback user creation if student creation fails
+    if (error.name === 'ValidationError' && req.body.studentId) {
+      await User.deleteOne({ studentId: req.body.studentId });
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
