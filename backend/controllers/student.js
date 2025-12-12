@@ -15,7 +15,7 @@ exports.getStudentResults = async (req, res) => {
       });
     }
 
-    const Result = require('../models/Result');
+    const Result = require('../models/Results');
     const results = await Result.find({ 
       studentId,
       status: 'published'

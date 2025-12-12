@@ -1,7 +1,7 @@
-const Result= require('../models/result');
-const Course = require('../models/course');
-const Student = require('../models/student');
-const Notification = require('../models/notification');
+const Result= require('../models/Results');
+const Course = require('../models/Course');
+const Student = require('../models/Student');
+const Notification = require('../models/Notification');
 const {sendEmail} = require('../utils/email');
 const {calculateGrade} = require('../utils/gradeCalculator');
 
