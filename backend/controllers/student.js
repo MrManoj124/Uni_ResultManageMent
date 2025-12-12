@@ -653,3 +653,47 @@ exports.addStudentNote = async (req, res) => {
     });
   }
 };
+
+
+// Get student statistics (Admin)
+exports.getStudentStatistics = async (req, res) => {
+  try {
+    const totalStudents = await Student.countDocuments();
+    const activeStudents = await Student.countDocuments({ 'enrollment.status': 'Active' });
+    const graduatedStudents = await Student.countDocuments({ 'enrollment.status': 'Graduated' });
+    const suspendedStudents = await Student.countDocuments({ 'enrollment.status': 'Suspended' });
+
+    // Students by program
+    const programDistribution = await Student.aggregate([
+      { $group: { _id: '$program', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Students by batch
+    const batchDistribution = await Student.aggregate([
+      { $group: { _id: '$batch', count: { $sum: 1 } } },
+      { $sort: { _id: -1 } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        overview: {
+          total: totalStudents,
+          active: activeStudents,
+          graduated: graduatedStudents,
+          suspended: suspendedStudents
+        },
+        byProgram: programDistribution,
+        byBatch: batchDistribution
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+//module.exports = exports;
