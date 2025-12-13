@@ -214,6 +214,70 @@ exports.getDepartmentStats = async (req, res) => {
 };
 
 
+// Get course-wise analytics
+exports.getCourseAnalytics = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const results = await Result.find({ 
+      courseId,
+      status: 'published'
+    });
+
+    if (results.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          totalStudents: 0,
+          averageMarks: 0,
+          passRate: 0,
+          gradeDistribution: {}
+        }
+      });
+    }
+
+    // Calculate statistics
+    const totalMarks = results.reduce((sum, r) => sum + r.marks, 0);
+    const averageMarks = (totalMarks / results.length).toFixed(2);
+    
+    const passedCount = results.filter(r => r.grade !== 'F').length;
+    const passRate = ((passedCount / results.length) * 100).toFixed(2);
+
+    // Grade distribution
+    const gradeDistribution = {};
+    results.forEach(result => {
+      gradeDistribution[result.grade] = (gradeDistribution[result.grade] || 0) + 1;
+    });
+
+    // Top performers
+    const topPerformers = results
+      .sort((a, b) => b.marks - a.marks)
+      .slice(0, 10)
+      .map(r => ({
+        studentId: r.studentId,
+        marks: r.marks,
+        grade: r.grade
+      }));
+
+    res.json({
+      success: true,
+      data: {
+        totalStudents: results.length,
+        averageMarks: parseFloat(averageMarks),
+        passRate: parseFloat(passRate),
+        gradeDistribution,
+        topPerformers
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+
 exports.getTopPerformers = async (req, res) => {
   try {
     const { limit = 10, semester, academicYear } = req.query;
