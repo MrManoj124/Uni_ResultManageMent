@@ -278,6 +278,77 @@ exports.getCourseAnalytics = async (req, res) => {
 };
 
 
+// Get semester-wise statistics
+exports.getSemesterStats = async (req, res) => {
+  try {
+    const { semester, academicYear } = req.query;
+
+    const matchQuery = { status: 'published' };
+    if (semester) matchQuery.semester = semester;
+    if (academicYear) matchQuery.academicYear = academicYear;
+
+    const results = await Result.find(matchQuery).populate('courseId', 'credits');
+
+    if (results.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          totalStudents: 0,
+          totalCourses: 0,
+          averageGPA: '0.00',
+          passRate: 0
+        }
+      });
+    }
+
+    // Unique students and courses
+    const uniqueStudents = [...new Set(results.map(r => r.studentId))];
+    const uniqueCourses = [...new Set(results.map(r => r.courseId?._id?.toString()))];
+
+    // Calculate average GPA
+    const studentGPAs = {};
+    results.forEach(result => {
+      if (!studentGPAs[result.studentId]) {
+        studentGPAs[result.studentId] = { points: 0, credits: 0 };
+      }
+      const credits = result.courseId?.credits || 0;
+      studentGPAs[result.studentId].points += result.gradePoints * credits;
+      studentGPAs[result.studentId].credits += credits;
+    });
+
+    let totalGPA = 0;
+    Object.values(studentGPAs).forEach(data => {
+      if (data.credits > 0) {
+        totalGPA += data.points / data.credits;
+      }
+    });
+
+    const averageGPA = uniqueStudents.length > 0 
+      ? (totalGPA / uniqueStudents.length).toFixed(2) 
+      : '0.00';
+
+    // Pass rate
+    const passedCount = results.filter(r => r.grade !== 'F').length;
+    const passRate = ((passedCount / results.length) * 100).toFixed(2);
+
+    res.json({
+      success: true,
+      data: {
+        totalStudents: uniqueStudents.length,
+        totalCourses: uniqueCourses.length,
+        totalResults: results.length,
+        averageGPA,
+        passRate: parseFloat(passRate)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 exports.getTopPerformers = async (req, res) => {
   try {
     const { limit = 10, semester, academicYear } = req.query;
