@@ -1,40 +1,59 @@
 // src/App.js
-import React, { useState } from 'react';
-import LoginPage from './components/loginpage';
-import StudentDashboard from './components/studentdashboard';
-import AdminDashboard from './components/admindashboard';
+import React, { useState, useEffect } from 'react';
+import { authAPI } from './services/api';
+import LoginPage from './components/LoginPage';
+import StudentDashboard from './components/StudentDashboard';
+import AdminDashboard from './components/AdminDashboard';
+import StaffDashboard from './components/StaffDashboard';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check for existing session
+    const savedUser = authAPI.getCurrentUser();
+    if (savedUser) {
+      setCurrentUser(savedUser);
+    }
+    setLoading(false);
+  }, []);
 
   const handleLogin = (user) => {
     setCurrentUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
   };
 
   const handleLogout = () => {
+    authAPI.logout();
     setCurrentUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
   };
 
-  // Check for existing session on mount
-  React.useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  if (currentUser.role === 'admin') {
-    return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+  // Route based on user role
+  switch (currentUser.role) {
+    case 'admin':
+      return <AdminDashboard user={currentUser} onLogout={handleLogout} />;
+    case 'staff':
+      return <StaffDashboard user={currentUser} onLogout={handleLogout} />;
+    case 'student':
+      return <StudentDashboard user={currentUser} onLogout={handleLogout} />;
+    default:
+      return <LoginPage onLogin={handleLogin} />;
   }
-
-  return <StudentDashboard user={currentUser} onLogout={handleLogout} />;
 }
 
 export default App;
