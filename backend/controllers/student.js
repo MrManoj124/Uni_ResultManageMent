@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Result = require('../models/Results');
+const Result = require('../models/Result');
 const {sendEmail}   = require('../utils/email');
 
 

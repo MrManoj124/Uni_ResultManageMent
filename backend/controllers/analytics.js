@@ -1,6 +1,6 @@
 const Student = require('../models/Student');
 const Course = require('../models/Course');
-const Result = require('../models/Results');
+const Result = require('../models/Result');
 const User = require('../models/User');
 
 // Get dashboard statistics
