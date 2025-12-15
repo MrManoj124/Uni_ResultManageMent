@@ -200,6 +200,17 @@ return(
           </div>
         )}
 
+        {/* Results Tab */}
+        {activeTab === 'results' && (
+          <ResultsTab 
+            results={results}
+            courses={courses}
+            showAddModal={showAddResultModal}
+            setShowAddModal={setShowAddResultModal}
+            onRefresh={fetchDashboardData}
+          />
+        )}
+
 
     </div>
 )
