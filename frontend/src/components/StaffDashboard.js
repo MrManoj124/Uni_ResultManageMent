@@ -17,7 +17,7 @@ const StaffDashboard = ({user, onLogout})=>{
         fetchDashboardData();
     },[]);
 
-    // const fetchDashboardData = async () => {
+    const fetchDashboardData = async () => {
 
-    // }
+    }
 }
