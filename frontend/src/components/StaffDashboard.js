@@ -77,6 +77,29 @@ return(
         </div>
       </div>
 
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex space-x-8">
+            {['dashboard', 'courses', 'results', 'students'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`py-4 px-2 font-medium capitalize transition ${
+                  activeTab === tab
+                    ? 'text-indigo-600 border-b-2 border-indigo-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+
+
 
     </div>
 )
