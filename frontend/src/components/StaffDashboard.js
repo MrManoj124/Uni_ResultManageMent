@@ -98,7 +98,55 @@ return(
         </div>
       </div>
 
+      <div className="container mx-auto px-4 py-8">
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && stats && (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <StatCard
+                title="Assigned Courses"
+                value={stats.assignedCourses || 0}
+                icon={BookOpen}
+                color="blue"
+              />
+              <StatCard
+                title="Advising Students"
+                value={stats.advisingStudents || 0}
+                icon={Users}
+                color="green"
+              />
+              <StatCard
+                title="Uploaded Results"
+               value={stats.uploadedResults || 0}
+                icon={FileText}
+                color="purple"
+              />
+            </div>
 
+            <div className="bg-white rounded-xl shadow-md p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => {
+                    setActiveTab('results');
+                    setShowAddResultModal(true);
+                  }}
+                  className="flex items-center justify-center space-x-2 bg-indigo-600 text-white px-6 py-4 rounded-lg hover:bg-indigo-700 transition"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Upload Result</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('courses')}
+                  className="flex items-center justify-center space-x-2 bg-green-600 text-white px-6 py-4 rounded-lg hover:bg-green-700 transition"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>View Courses</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
 
     </div>
