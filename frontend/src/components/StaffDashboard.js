@@ -211,6 +211,25 @@ return(
           />
         )}
 
+        {/* Students Tab */}
+        {activeTab === 'students' && stats && (
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b">
+              <h2 className="text-xl font-bold text-gray-800">Advising Students</h2>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-600">
+                You are advising {stats.advisingStudents || 0} students.
+              </p>
+              {/* Add student list here */}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
     </div>
 )
