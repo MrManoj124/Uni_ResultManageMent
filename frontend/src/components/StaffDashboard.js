@@ -253,3 +253,35 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     </div>
   );
 };
+
+
+// Results Tab Component
+const ResultsTab = ({ results, courses, showAddModal, setShowAddModal, onRefresh }) => {
+  const [formData, setFormData] = useState({
+    studentId: '',
+    courseId: '',
+    marks: '',
+    academicYear: new Date().getFullYear() + '/' + (new Date().getFullYear() + 1)
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setSubmitting(true);
+      await resultAPI.addResult(formData);
+      alert('Result added successfully!');
+      setShowAddModal(false);
+      setFormData({
+        studentId: '',
+        courseId: '',
+        marks: '',
+        academicYear: new Date().getFullYear() + '/' + (new Date().getFullYear() + 1)
+      });
+      onRefresh();
+    } catch (error) {
+      alert(handleAPIError(error));
+    } finally {
+      setSubmitting(false);
+    }
+  };
