@@ -285,3 +285,15 @@ const ResultsTab = ({ results, courses, showAddModal, setShowAddModal, onRefresh
       setSubmitting(false);
     }
   };
+
+   const handleSubmitForApproval = async (resultId) => {
+    if (window.confirm('Submit this result for admin approval?')) {
+      try {
+        await resultAPI.submitForApproval(resultId);
+        alert('Result submitted for approval!');
+        onRefresh();
+      } catch (error) {
+        alert(handleAPIError(error));
+      }
+    }
+  };
