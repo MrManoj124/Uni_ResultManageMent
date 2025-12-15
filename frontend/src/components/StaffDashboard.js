@@ -237,3 +237,19 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     green: 'border-green-500 bg-green-100 text-green-600',
     purple: 'border-purple-500 bg-purple-100 text-purple-600'
   };
+
+
+ return (
+    <div className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${colorClasses[color].split(' ')[0]}`}>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-500 text-sm">{title}</p>
+          <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
+        </div>
+        <div className={`p-3 rounded-lg ${colorClasses[color].split(' ').slice(1).join(' ')}`}>
+          <Icon className="w-8 h-8" />
+        </div>
+      </div>
+    </div>
+  );
+};
