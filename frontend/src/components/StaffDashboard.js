@@ -13,5 +13,11 @@ const StaffDashboard = ({user, onLogout})=>{
     const [loading, setLoading] = useState(true);
     const [showAddResultModal, setShoqAddResultModal] = useState(false);
 
-    
+    useEffect(()=>{
+        fetchDashboardData();
+    },[]);
+
+    // const fetchDashboardData = async () => {
+
+    // }
 }
