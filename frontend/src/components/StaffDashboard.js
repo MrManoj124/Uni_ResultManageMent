@@ -29,10 +29,9 @@ const StaffDashboard = ({user, onLogout})=>{
             setStats(dashboardData.data.stats);
             setCourses(coursesData.data.courses || []);
             setResults(resultsData.data.results || []);        }
-    }catch(error){
+        }catch(error){
         console.error('Error fetching dashboard data:', error);
-
-    }finally{
+        }finally{
         setLoading(false);
     }
 }
@@ -231,5 +230,10 @@ return(
 };
 
 
-    </div>
-)
+// Stat Card Component
+const StatCard = ({ title, value, icon: Icon, color }) => {
+  const colorClasses = {
+    blue: 'border-blue-500 bg-blue-100 text-blue-600',
+    green: 'border-green-500 bg-green-100 text-green-600',
+    purple: 'border-purple-500 bg-purple-100 text-purple-600'
+  };
