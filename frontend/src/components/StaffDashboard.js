@@ -149,5 +149,57 @@ return(
         )}
 
 
+        {/* Courses Tab */}
+        {activeTab === 'courses' && (
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b">
+              <h2 className="text-xl font-bold text-gray-800">My Courses</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Course Code</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Course Name</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Credits</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Semester</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {courses.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                        No courses assigned yet
+                      </td>
+                    </tr>
+                  ) : (
+                    courses.map((course, idx) => (
+                      <tr key={course._id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{course.code}</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">{course.name}</td>
+                        <td className="px-6 py-4 text-sm text-center text-gray-700">{course.credits}</td>
+                        <td className="px-6 py-4 text-sm text-center text-gray-700">{course.semester}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => {
+                              setActiveTab('results');
+                              setShowAddResultModal(true);
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+                          >
+                            Upload Results
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+
     </div>
 )
