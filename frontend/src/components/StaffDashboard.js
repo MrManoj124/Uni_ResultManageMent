@@ -50,7 +50,33 @@ if(loading){
 
 return(
     <div className="min-h-screen bg-gray-50">
+       {/* Header */}
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <GraduationCap className="w-8 h-8" />
+              <div>
+                <h1 className="text-2xl font-bold">ResultPro Staff</h1>
+                <p className="text-indigo-100 text-sm">Staff Portal</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="font-semibold">{user.name}</p>
+                <p className="text-sm text-indigo-100">{user.staffId}</p>
+              </div>
+              <button 
+                onClick={onLogout} 
+                className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        
+
     </div>
 )
