@@ -1,55 +1,60 @@
-import React, {useState, useEffect} from 'react';
-import { GraduationCap, Logout, BookOpen, Users, FileText, 
-    Plus, Upload, Check, X, Search, Filter
-    }  from 'lucide-react';
-import { staffAPI, resultAPI, courseAPI, studentAPI, calculateGrade, handleAPIError } from '../services/api';
+// src/components/StaffDashboard.jsx
+import React, { useState, useEffect } from 'react';
+import { 
+  GraduationCap, LogOut, BookOpen, Users, FileText, 
+  Plus, Upload, Check, X, Search, Filter 
+} from 'lucide-react';
+import { 
+  staffAPI, resultAPI, courseAPI, studentAPI, 
+  calculateGrade, handleAPIError 
+} from '../services/api';
 
-const StaffDashboard = ({user, onLogout})=>{
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [stats, setStats] = useState(null);
-    const [courses, setCourses] = useState([]);
-    const [students, setStudents] = useState([]);
-    const [result, setResults] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showAddResultModal, setShoqAddResultModal] = useState(false);
+const StaffDashboard = ({ user, onLogout }) => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddResultModal, setShowAddResultModal] = useState(false);
 
-    useEffect(()=>{
-        fetchDashboardData();
-    },[]);
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-    const fetchDashboardData = async () => {
-        try{
-            setLoading(true);
-            const [dashboardData, coursesData, resultsData] =wait Promise.all([
-                staffAPI.getDashboard(user.staffId),
-                staffAPI.getAssignedCourses(user.staffId),
-                resultAPI.getAllResults({uploadedBy:user.id})
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [dashboardData, coursesData, resultsData] = await Promise.all([
+        staffAPI.getDashboard(user.staffId),
+        staffAPI.getAssignedCourses(user.staffId),
+        resultAPI.getAllResults({ uploadedBy: user.id })
+      ]);
 
-            ]);
-            setStats(dashboardData.data.stats);
-            setCourses(coursesData.data.courses || []);
-            setResults(resultsData.data.results || []);        }
-        }catch(error){
-        console.error('Error fetching dashboard data:', error);
-        }finally{
-        setLoading(false);
+      setStats(dashboardData.data.stats);
+      setCourses(coursesData.data.courses || []);
+      setResults(resultsData.data.results || []);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-}
+  };
 
-if(loading){
-    return(
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
-    )
-}
+    );
+  }
 
-return(
+  return (
     <div className="min-h-screen bg-gray-50">
-       {/* Header */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
@@ -116,7 +121,7 @@ return(
               />
               <StatCard
                 title="Uploaded Results"
-               value={stats.uploadedResults || 0}
+                value={stats.uploadedResults || 0}
                 icon={FileText}
                 color="purple"
               />
@@ -146,7 +151,6 @@ return(
             </div>
           </div>
         )}
-
 
         {/* Courses Tab */}
         {activeTab === 'courses' && (
@@ -229,7 +233,6 @@ return(
   );
 };
 
-
 // Stat Card Component
 const StatCard = ({ title, value, icon: Icon, color }) => {
   const colorClasses = {
@@ -238,8 +241,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     purple: 'border-purple-500 bg-purple-100 text-purple-600'
   };
 
-
- return (
+  return (
     <div className={`bg-white rounded-xl shadow-md p-6 border-l-4 ${colorClasses[color].split(' ')[0]}`}>
       <div className="flex items-center justify-between">
         <div>
@@ -253,7 +255,6 @@ const StatCard = ({ title, value, icon: Icon, color }) => {
     </div>
   );
 };
-
 
 // Results Tab Component
 const ResultsTab = ({ results, courses, showAddModal, setShowAddModal, onRefresh }) => {
@@ -286,7 +287,7 @@ const ResultsTab = ({ results, courses, showAddModal, setShowAddModal, onRefresh
     }
   };
 
-   const handleSubmitForApproval = async (resultId) => {
+  const handleSubmitForApproval = async (resultId) => {
     if (window.confirm('Submit this result for admin approval?')) {
       try {
         await resultAPI.submitForApproval(resultId);
@@ -298,8 +299,7 @@ const ResultsTab = ({ results, courses, showAddModal, setShowAddModal, onRefresh
     }
   };
 
-
-   return (
+  return (
     <div>
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b flex justify-between items-center">
