@@ -18,6 +18,21 @@ const StaffDashboard = ({user, onLogout})=>{
     },[]);
 
     const fetchDashboardData = async () => {
+        try{
+            setLoading(true);
+            const [dashboardData, coursesData, resultsData] =wait Promise.all([
+                staffAPI.getDashboard(user.staffId),
+                staffAPI.getAssignedCourses(user.staffId),
+                resultAPI.getAllResults({uploadedBy:user.id})
 
+            ]);
+            setStats(dashboardData.data.stats);
+            setCourses(coursesData.data.courses || []);
+            setResults(resultsData.data.results || []);        }
+    }catch(error){
+        console.error('Error fetching dashboard data:', error);
+
+    }finally{
+        setLoading(false);
     }
 }
