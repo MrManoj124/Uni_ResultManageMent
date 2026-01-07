@@ -1,7 +1,11 @@
 // src/services/api.js
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Normalize API base URL so callers don't accidentally end up with
+// missing or duplicated "/api" segments depending on env values.
+const rawApiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const trimmedApiUrl = rawApiUrl.replace(/\/+$/, '');
+const API_URL = trimmedApiUrl.endsWith('/api') ? trimmedApiUrl : `${trimmedApiUrl}/api`;
 
 // Create axios instance
 const api = axios.create({
@@ -277,9 +281,8 @@ export const resultAPI = {
   uploadCSV: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await api.post('/results/upload-csv', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    // Let the browser/axios set the Content-Type (with boundary) for FormData
+    const response = await api.post('/results/upload-csv', formData);
     return response.data;
   },
 
