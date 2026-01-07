@@ -131,20 +131,32 @@ userSchema.methods.getPublicProfile = function() {
 
 // Static method to find by credentials
 userSchema.statics.findByCredentials = async function(username, password) {
-  const user = await this.findOne({ 
-    $or: [{ username }, { email: username }],
-    isActive: true 
-  }).select('+password');
-  
+  // Normalize input and perform case-insensitive lookup so users can
+  // login using email or username regardless of casing or surrounding spaces.
+  const identifier = String(username || '').trim();
+
+  // Escape regex special chars for username search
+  const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  const query = {
+    $or: [
+      { username: new RegExp(`^${escapeRegExp(identifier)}$`, 'i') },
+      { email: new RegExp(`^${escapeRegExp(identifier)}$`, 'i') }
+    ],
+    isActive: true
+  };
+
+  const user = await this.findOne(query).select('+password');
+
   if (!user) {
     throw new Error('Invalid credentials');
   }
-  
+
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
     throw new Error('Invalid credentials');
   }
-  
+
   return user;
 };
 

@@ -7,11 +7,15 @@ const crypto = require('crypto');
 const sendEmail = require('../utils/email');
 const sendNotification = require('../utils/notification');
 
-// Generate JWT token
+// Generate JWT token (use a safe development fallback if JWT_SECRET is missing)
 const generateToken = (userId, role) => {
+  const secret = process.env.JWT_SECRET || 'dev_jwt_secret_change_me';
+  if (!process.env.JWT_SECRET) {
+    console.warn('⚠️  JWT_SECRET not set. Using development fallback secret.');
+  }
   return jwt.sign(
     { id: userId, role },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 };
