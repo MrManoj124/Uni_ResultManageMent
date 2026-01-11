@@ -160,6 +160,7 @@ exports.verifyEmail = async (req, res) => {
       template: 'welcome',
       data: { name: user.name }
     });
+    
 
     res.json({
       success: true,
