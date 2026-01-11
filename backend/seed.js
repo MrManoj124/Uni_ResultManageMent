@@ -110,20 +110,17 @@ const seedDatabase = async () => {
     // 1. Create Users
     // ============================================
     
-    const hashedAdminPassword = await bcrypt.hash('admin123', 10);
-    const hashedStudentPassword = await bcrypt.hash('student123', 10);
-
     const users = [
       {
         username: 'admin',
-        password: hashedAdminPassword,
+        password: 'admin123',
         role: 'admin',
         name: 'System Administrator',
         email: 'admin@uva.lk'
       },
       {
         username: '2021/ICT/41',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'U.D.N.P Nawarathne',
         studentId: '2021/ICT/41',
@@ -131,7 +128,7 @@ const seedDatabase = async () => {
       },
       {
         username: '2021/ICT/74',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'S. Manoj',
         studentId: '2021/ICT/74',
@@ -139,7 +136,7 @@ const seedDatabase = async () => {
       },
       {
         username: '2021/ICT/96',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'R. Keerthana',
         studentId: '2021/ICT/96',
@@ -147,7 +144,7 @@ const seedDatabase = async () => {
       },
       {
         username: '2021/ICT/108',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'M.I.F Nusha',
         studentId: '2021/ICT/108',
@@ -155,7 +152,7 @@ const seedDatabase = async () => {
       },
       {
         username: '2021/ICT/122',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'A.G.K.S Bandara',
         studentId: '2021/ICT/122',
@@ -163,7 +160,7 @@ const seedDatabase = async () => {
       },
       {
         username: '2021/ICT/123',
-        password: hashedStudentPassword,
+        password: 'student123',
         role: 'student',
         name: 'D.K.A.P Udayasiri',
         studentId: '2021/ICT/123',
