@@ -86,14 +86,21 @@ exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Find user and include password
+    // Validate input
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Username and password are required'
+      });
+    }
+
+    // Find user and verify password
     const user = await User.findByCredentials(username, password);
 
-    // Check if user is active
-    if (!user.isActive) {
-      return res.status(403).json({
+    if (!user) {
+      return res.status(401).json({
         success: false,
-        error: 'Your account has been deactivated. Please contact admin.'
+        error: 'Invalid credentials'
       });
     }
 
@@ -123,10 +130,10 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.message);
     res.status(401).json({
       success: false,
-      error: 'Invalid credentials'
+      error: error.message || 'Invalid credentials'
     });
   }
 };
