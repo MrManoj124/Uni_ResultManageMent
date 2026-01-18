@@ -70,7 +70,7 @@ const AdminDashboard = ({ user, onLogout }) => {
 
             <div className="flex">
                 {/* Sidebar */}
-       /* <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-purple-900 text-white min-h-[calc(100vh-64px)] transition-all duration-300`}>
+                <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-purple-900 text-white min-h-[calc(100vh-64px)] transition-all duration-300`}>
                     <nav className="p-4">
                         {[
                             { id: 'dashboard', icon: BarChart3, label: 'Dashboard' },
@@ -93,11 +93,11 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </aside>
 
                 {/* Main Content */}
-       /* <main className="flex-1 p-6">
+                <main className="flex-1 p-6">
                     {activeTab === 'dashboard' && (
                         <div>
                             {/* Stats */}
-             /* <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                                 <div className="bg-white p-6 rounded-lg shadow">
                                     <p className="text-gray-600 text-sm">Total Students</p>
                                     <p className="text-3xl font-bold text-purple-600">{dashboardData?.totalStudents || 0}</p>
@@ -117,70 +117,70 @@ const AdminDashboard = ({ user, onLogout }) => {
                             </div>
 
                             {/* Recent Students */}
-/*  <div className="bg-white p-6 rounded-lg shadow">
-    <h3 className="text-xl font-bold mb-4">Recent Registrations</h3>
-    {dashboardData?.recentStudents?.map((student) => (
-      <div key={student._id} className="py-3 border-b last:border-b-0 flex items-center justify-between">
-        <div>
-          <p className="font-semibold">{student.userId?.firstName} {student.userId?.lastName}</p>
-          <p className="text-sm text-gray-600">{student.studentId} - {student.program}</p>
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <h3 className="text-xl font-bold mb-4">Recent Registrations</h3>
+                                {dashboardData?.recentStudents?.map((student) => (
+                                    <div key={student._id} className="py-3 border-b last:border-b-0 flex items-center justify-between">
+                                        <div>
+                                            <p className="font-semibold">{student.userId?.firstName} {student.userId?.lastName}</p>
+                                            <p className="text-sm text-gray-600">{student.studentId} - {student.program}</p>
+                                        </div>
+                                        <span className="text-sm text-gray-500">Year {student.year}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'students' && (
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold">Student Management</h3>
+                                <button
+                                    onClick={() => {
+                                        setModalType('student');
+                                        setShowModal(true);
+                                    }}
+                                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                                >
+                                    <Plus size={20} />
+                                    Add New Student
+                                </button>
+                            </div>
+                            <div className="bg-white p-6 rounded-lg shadow">
+                                <p className="text-gray-600">Student list will appear here</p>
+                            </div>
+                        </div>
+                    )}
+                </main>
+            </div>
+
+            <AddModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                title={`Add New ${modalType === 'student' ? 'Student' : 'Staff'}`}
+                onSubmit={handleCreateStudent}
+                submitText="Create"
+            >
+                <FormInput label="First Name" name="firstName" required />
+                <FormInput label="Last Name" name="lastName" required />
+                <FormInput label="Email" name="email" type="email" required />
+                <FormInput label="Password" name="password" type="password" required />
+                <FormInput label="Program" name="program" required />
+                <FormSelect
+                    label="Year"
+                    name="year"
+                    options={[
+                        { value: 1, label: '1st Year' },
+                        { value: 2, label: '2nd Year' },
+                        { value: 3, label: '3rd Year' },
+                        { value: 4, label: '4th Year' },
+                    ]}
+                    required
+                />
+            </AddModal>
         </div>
-        <span className="text-sm text-gray-500">Year {student.year}</span>
-      </div>
-    ))}
-  </div>
-</div>
-)}
-
-{activeTab === 'students' && (
-<div>
-  <div className="flex justify-between items-center mb-6">
-    <h3 className="text-xl font-bold">Student Management</h3>
-    <button
-      onClick={() => {
-        setModalType('student');
-        setShowModal(true);
-      }}
-      className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-    >
-      <Plus size={20} />
-      Add New Student
-    </button>
-  </div>
-  <div className="bg-white p-6 rounded-lg shadow">
-    <p className="text-gray-600">Student list will appear here</p>
-  </div>
-</div>
-)}
-</main>
-</div>
-
-<AddModal
-isOpen={showModal}
-onClose={() => setShowModal(false)}
-title={`Add New ${modalType === 'student' ? 'Student' : 'Staff'}`}
-onSubmit={handleCreateStudent}
-submitText="Create"
->
-<FormInput label="First Name" name="firstName" required />
-<FormInput label="Last Name" name="lastName" required />
-<FormInput label="Email" name="email" type="email" required />
-<FormInput label="Password" name="password" type="password" required />
-<FormInput label="Program" name="program" required />
-<FormSelect
-label="Year"
-name="year"
-options={[
-{ value: 1, label: '1st Year' },
-{ value: 2, label: '2nd Year' },
-{ value: 3, label: '3rd Year' },
-{ value: 4, label: '4th Year' },
-]}
-required
-/>
-</AddModal>
-</div>
-);
+    );
 };
 
-export default AdminDashboard;*/
+//export default AdminDashboard;
