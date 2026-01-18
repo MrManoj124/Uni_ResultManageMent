@@ -103,6 +103,11 @@ export const authAPI = {
 // STUDENT API
 // ============================================
 export const studentAPI = {
+  getDashboard: async () => {
+    const response = await api.get('/students/dashboard');
+    return response.data;
+  },
+
   getAllStudents: async (params = {}) => {
     const response = await api.get('/students', { params });
     return response.data;
@@ -148,6 +153,24 @@ export const studentAPI = {
     return response.data;
   }
 };
+
+export const studentService = studentAPI;
+
+// ============================================
+// ADMIN API
+// ============================================
+export const adminService = {
+  getDashboard: async () => {
+    const response = await api.get('/analytics/dashboard-stats');
+    return response.data;
+  },
+  createStudent: async (studentData) => {
+    const response = await api.post('/students', studentData);
+    return response.data;
+  }
+};
+
+export const courseService = courseAPI;
 
 // ============================================
 // STAFF API
@@ -433,17 +456,17 @@ export const calculateGrade = (marks) => {
 
 export const calculateGPA = (results) => {
   if (!results || results.length === 0) return '0.00';
-  
+
   let totalPoints = 0;
   let totalCredits = 0;
-  
+
   results.forEach(result => {
     if (result.courseId) {
       totalPoints += result.gradePoints * result.courseId.credits;
       totalCredits += result.courseId.credits;
     }
   });
-  
+
   return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
 };
 

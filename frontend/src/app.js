@@ -1,10 +1,10 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
 import { authAPI } from '../src/services/api';
-import LoginPage from '../src/components/loginpage';
-import StudentDashboard from '../src/components/studentdashboard';
-import AdminDashboard from '../src/components/admindashboard';
-import StaffDashboard from '../src/components/StaffDashboard';
+import LoginPage from './components/loginpage';
+import StudentDashboard from './components/studentdashboard';
+import AdminDashboard from './components/admindashboard';
+import StaffDashboard from './components/StaffDashboard';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);

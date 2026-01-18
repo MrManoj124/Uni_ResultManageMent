@@ -20,7 +20,7 @@ const AddModal = ({ type, students, courses, onClose, onSubmit }) => {
         <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-t-2xl">
           <h3 className="text-xl font-bold capitalize">Add New {type}</h3>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {type === 'student' && (
             <>
@@ -191,8 +191,8 @@ const AddModal = ({ type, students, courses, onClose, onSubmit }) => {
   );
 };
 
-// Form Field Component
-const FormField = ({ label, type, value, onChange, placeholder, required, min, max }) => {
+// Form Input Component
+export const FormInput = ({ label, type = 'text', value, onChange, placeholder, required, min, max, name }) => {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -200,6 +200,7 @@ const FormField = ({ label, type, value, onChange, placeholder, required, min, m
       </label>
       <input
         type={type}
+        name={name}
         value={value}
         onChange={onChange}
         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -211,5 +212,33 @@ const FormField = ({ label, type, value, onChange, placeholder, required, min, m
     </div>
   );
 };
+
+// Form Select Component
+export const FormSelect = ({ label, name, options, value, onChange, required }) => {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+        required={required}
+      >
+        <option value="">Select {label}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+// Internal FormField (deprecated in favor of exported ones but kept for local use if any)
+const FormField = FormInput;
 
 export default AddModal;
