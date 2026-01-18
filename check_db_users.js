@@ -19,6 +19,5 @@ async function checkUsers() {
         process.exit(1);
     }
 }
-
 checkUsers();
 
