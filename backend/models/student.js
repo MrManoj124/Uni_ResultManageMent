@@ -172,50 +172,50 @@ studentSchema.index({ email: 1 });
 studentSchema.index({ program: 1, batch: 1 });
 studentSchema.index({ 'enrollment.status': 1 });
 
+
 // Virtual for full name
-studentSchema.virtual('fullName').get(function() {
+studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.lastName}`;
 });
 
 // Pre-save middleware
-studentSchema.pre('save', function(next) {
+studentSchema.pre('save', async function () {
   if (this.name.firstName && this.name.lastName) {
     this.name.fullName = `${this.name.firstName} ${this.name.lastName}`;
   }
-  next();
 });
 
 // Method to calculate GPA
-studentSchema.methods.calculateGPA = async function() {
+studentSchema.methods.calculateGPA = async function () {
   const Result = mongoose.model('Result');
-  const results = await Result.find({ 
+  const results = await Result.find({
     studentId: this.studentId,
     status: 'published'
   }).populate('courseId');
-  
+
   if (results.length === 0) {
     return { currentGPA: 0, cumulativeGPA: 0, totalCredits: 0 };
   }
-  
+
   let totalPoints = 0;
   let totalCredits = 0;
-  
+
   results.forEach(result => {
     if (result.courseId) {
       totalPoints += result.gradePoints * result.courseId.credits;
       totalCredits += result.courseId.credits;
     }
   });
-  
+
   const gpa = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
-  
+
   this.academicInfo.currentGPA = parseFloat(gpa.toFixed(2));
   this.academicInfo.cumulativeGPA = parseFloat(gpa.toFixed(2));
   this.academicInfo.totalCreditsEarned = totalCredits;
   this.academicInfo.totalCreditsAttempted = totalCredits;
-  
+
   await this.save();
-  
+
   return {
     currentGPA: this.academicInfo.currentGPA,
     cumulativeGPA: this.academicInfo.cumulativeGPA,
@@ -224,13 +224,13 @@ studentSchema.methods.calculateGPA = async function() {
 };
 
 // Method to get student results summary
-studentSchema.methods.getResultsSummary = async function() {
+studentSchema.methods.getResultsSummary = async function () {
   const Result = mongoose.model('Result');
-  const results = await Result.find({ 
+  const results = await Result.find({
     studentId: this.studentId,
     status: 'published'
   }).populate('courseId');
-  
+
   const summary = {
     totalCourses: results.length,
     passedCourses: results.filter(r => r.grade !== 'F').length,
@@ -238,12 +238,12 @@ studentSchema.methods.getResultsSummary = async function() {
     gpa: this.academicInfo.currentGPA,
     gradeDistribution: {}
   };
-  
+
   results.forEach(result => {
     const grade = result.grade;
     summary.gradeDistribution[grade] = (summary.gradeDistribution[grade] || 0) + 1;
   });
-  
+
   return summary;
 };
 

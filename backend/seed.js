@@ -151,10 +151,12 @@ const seedDatabase = async () => {
     // ============================================
     // 5. Create Results
     // ============================================
+    console.log('📝 Creating results...');
     for (const sid of studentIds) {
       for (const course of courses) {
         const marks = Math.floor(Math.random() * 40) + 55; // 55-95
-        await Result.create({
+        console.log(`- Creating result for ${sid} in ${course.code} (${course._id}) by ${staffUser._id}`);
+        const resultData = {
           studentId: sid,
           courseId: course._id,
           marks: marks,
@@ -164,7 +166,8 @@ const seedDatabase = async () => {
           uploadedBy: staffUser._id,
           publishedBy: admin._id,
           publishedAt: new Date()
-        });
+        };
+        await Result.create(resultData);
       }
     }
     console.log('✅ Created results');

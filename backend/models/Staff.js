@@ -201,32 +201,31 @@ staffSchema.index({ designation: 1 });
 staffSchema.index({ isActive: 1 });
 
 // Virtual for full name with title
-staffSchema.virtual('fullNameWithTitle').get(function() {
+staffSchema.virtual('fullNameWithTitle').get(function () {
   return `${this.name.title} ${this.name.firstName} ${this.name.lastName}`;
 });
 
 // Pre-save middleware
-staffSchema.pre('save', function(next) {
+staffSchema.pre('save', async function () {
   if (this.name.firstName && this.name.lastName) {
     this.name.fullName = `${this.name.firstName} ${this.name.lastName}`;
   }
-  next();
 });
 
 // Method to get assigned courses
-staffSchema.methods.getAssignedCourses = async function() {
+staffSchema.methods.getAssignedCourses = async function () {
   await this.populate('assignedCourses');
   return this.assignedCourses;
 };
 
 // Method to get advising students
-staffSchema.methods.getAdvisingStudents = async function() {
+staffSchema.methods.getAdvisingStudents = async function () {
   await this.populate('advisingStudents');
   return this.advisingStudents;
 };
 
 // Method to check if staff can perform action
-staffSchema.methods.canPerformAction = function(action) {
+staffSchema.methods.canPerformAction = function (action) {
   const permissionMap = {
     'uploadResults': this.permissions.canUploadResults,
     'editResults': this.permissions.canEditResults,
@@ -235,17 +234,17 @@ staffSchema.methods.canPerformAction = function(action) {
     'manageStudents': this.permissions.canManageStudents,
     'manageCourses': this.permissions.canManageCourses
   };
-  
+
   return permissionMap[action] || false;
 };
 
 // Static method to find staff by department
-staffSchema.statics.findByDepartment = function(department) {
+staffSchema.statics.findByDepartment = function (department) {
   return this.find({ department, isActive: true });
 };
 
 // Static method to find staff by designation
-staffSchema.statics.findByDesignation = function(designation) {
+staffSchema.statics.findByDesignation = function (designation) {
   return this.find({ designation, isActive: true });
 };
 

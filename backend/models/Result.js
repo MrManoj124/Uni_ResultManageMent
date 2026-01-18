@@ -128,14 +128,13 @@ resultSchema.index({ status: 1 });
 resultSchema.index({ uploadedBy: 1 });
 resultSchema.index({ publishedAt: -1 });
 
-// Pre-save middleware to calculate grade
-resultSchema.pre('save', function(next) {
+// Pre-validate middleware to calculate grade
+resultSchema.pre('validate', function () {
   if (this.isModified('marks')) {
     const gradeInfo = calculateGrade(this.marks);
     this.grade = gradeInfo.grade;
     this.gradePoints = gradeInfo.points;
   }
-  next();
 });
 
 // Helper function to calculate grade
@@ -154,7 +153,7 @@ function calculateGrade(marks) {
 }
 
 // Method to submit for approval
-resultSchema.methods.submitForApproval = async function(userId) {
+resultSchema.methods.submitForApproval = async function (userId) {
   this.submittedForApproval = true;
   this.submittedAt = new Date();
   this.status = 'pending';
@@ -167,7 +166,7 @@ resultSchema.methods.submitForApproval = async function(userId) {
 };
 
 // Method to publish result
-resultSchema.methods.publish = async function(userId) {
+resultSchema.methods.publish = async function (userId) {
   this.status = 'published';
   this.publishedBy = userId;
   this.publishedAt = new Date();
@@ -180,7 +179,7 @@ resultSchema.methods.publish = async function(userId) {
 };
 
 // Method to revise result
-resultSchema.methods.revise = async function(newMarks, userId, reason) {
+resultSchema.methods.revise = async function (newMarks, userId, reason) {
   // Save previous version
   this.previousVersions.push({
     marks: this.marks,
