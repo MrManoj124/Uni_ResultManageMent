@@ -189,3 +189,5 @@ const StudentDashboard = ({ user, onLogout }) => {
         </div>
     );
 };
+
+export default StudentDashboard;
