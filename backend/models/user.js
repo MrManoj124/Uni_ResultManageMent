@@ -95,22 +95,17 @@ userSchema.index({ staffId: 1 });
 userSchema.index({ role: 1 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
-  
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
@@ -119,7 +114,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Get public profile
-userSchema.methods.getPublicProfile = function() {
+userSchema.methods.getPublicProfile = function () {
   const obj = this.toObject();
   delete obj.password;
   delete obj.emailVerificationToken;
@@ -130,7 +125,7 @@ userSchema.methods.getPublicProfile = function() {
 };
 
 // Static method to find by credentials
-userSchema.statics.findByCredentials = async function(username, password) {
+userSchema.statics.findByCredentials = async function (username, password) {
   // Normalize input and perform case-insensitive lookup so users can
   // login using email or username regardless of casing or surrounding spaces.
   const identifier = String(username || '').trim();
@@ -161,7 +156,7 @@ userSchema.statics.findByCredentials = async function(username, password) {
 };
 
 // Update last login
-userSchema.methods.updateLastLogin = function() {
+userSchema.methods.updateLastLogin = function () {
   this.lastLogin = new Date();
   return this.save();
 };
