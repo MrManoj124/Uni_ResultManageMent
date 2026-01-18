@@ -35,5 +35,4 @@ async function runTests() {
     }
 }
 
-
 runTests();
