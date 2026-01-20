@@ -76,6 +76,7 @@ app.get('/', (req, res) => {
   });
 });
 
+
 // Import all routes
 const authRoutes = require('./routes/authroute');
 const userRoutes = require('./routes/Userroute');
