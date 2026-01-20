@@ -22,3 +22,4 @@ router.delete('/users/bulk-delete', adminController.bulkDeleteUsers);
 router.get('/logs', adminController.getSystemLogs);
 
 module.exports = router;
+
