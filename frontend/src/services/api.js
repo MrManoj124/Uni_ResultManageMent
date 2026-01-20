@@ -164,8 +164,24 @@ export const adminService = {
     const response = await api.get('/analytics/dashboard-stats');
     return response.data;
   },
+  getAdminSummary: async () => {
+    const response = await api.get('/admin/summary');
+    return response.data;
+  },
+  getSystemStatus: async () => {
+    const response = await api.get('/admin/system-status');
+    return response.data;
+  },
   createStudent: async (studentData) => {
     const response = await api.post('/students', studentData);
+    return response.data;
+  },
+  bulkActivateUsers: async (userIds) => {
+    const response = await api.post('/admin/users/bulk-activate', { userIds });
+    return response.data;
+  },
+  bulkDeleteUsers: async (userIds) => {
+    const response = await api.delete('/admin/users/bulk-delete', { data: { userIds } });
     return response.data;
   }
 };

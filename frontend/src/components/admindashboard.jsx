@@ -14,6 +14,9 @@ const AdminDashboard = ({ user, onLogout }) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState('');
+    const [students, setStudents] = useState([]);
+    const [staffList, setStaffList] = useState([]);
+    const [courses, setCourses] = useState([]);
 
     useEffect(() => {
         loadDashboard();
@@ -21,8 +24,16 @@ const AdminDashboard = ({ user, onLogout }) => {
 
     const loadDashboard = async () => {
         try {
-            const data = await adminService.getDashboard();
-            setDashboardData(data);
+            const [stats, studentList, staffData, courseList] = await Promise.all([
+                adminService.getDashboard(),
+                adminService.createStudent ? api.get('/students') : null, // Assuming studentAPI.getAllStudents
+                api.get('/staff'),
+                api.get('/courses')
+            ]);
+            setDashboardData(stats);
+            if (studentList) setStudents(studentList.data.data.students || studentList.data.data);
+            setStaffList(staffData.data.data.staff || staffData.data.data);
+            setCourses(courseList.data.data.courses || courseList.data.data);
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {
@@ -147,8 +158,105 @@ const AdminDashboard = ({ user, onLogout }) => {
                                     Add New Student
                                 </button>
                             </div>
-                            <div className="bg-white p-6 rounded-lg shadow">
-                                <p className="text-gray-600">Student list will appear here</p>
+                            <div className="bg-white rounded-lg shadow overflow-hidden">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="p-4 font-semibold text-gray-700">Student ID</th>
+                                            <th className="p-4 font-semibold text-gray-700">Name</th>
+                                            <th className="p-4 font-semibold text-gray-700">Program</th>
+                                            <th className="p-4 font-semibold text-gray-700">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {students.map(s => (
+                                            <tr key={s._id} className="border-b hover:bg-gray-50">
+                                                <td className="p-4">{s.studentId}</td>
+                                                <td className="p-4">{s.name?.firstName} {s.name?.lastName}</td>
+                                                <td className="p-4">{s.program}</td>
+                                                <td className="p-4">
+                                                    <span className={`px-2 py-1 rounded-full text-xs ${s.enrollment?.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                        {s.enrollment?.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'staff' && (
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold">Staff Management</h3>
+                                <button
+                                    onClick={() => {
+                                        setModalType('staff');
+                                        setShowModal(true);
+                                    }}
+                                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                                >
+                                    <Plus size={20} />
+                                    Add New Staff
+                                </button>
+                            </div>
+                            <div className="bg-white rounded-lg shadow overflow-hidden">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="p-4 font-semibold text-gray-700">Staff ID</th>
+                                            <th className="p-4 font-semibold text-gray-700">Name</th>
+                                            <th className="p-4 font-semibold text-gray-700">Department</th>
+                                            <th className="p-4 font-semibold text-gray-700">Designation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {staffList.map(s => (
+                                            <tr key={s._id} className="border-b hover:bg-gray-50">
+                                                <td className="p-4">{s.staffId}</td>
+                                                <td className="p-4">{s.name?.title} {s.name?.firstName} {s.name?.lastName}</td>
+                                                <td className="p-4">{s.department}</td>
+                                                <td className="p-4">{s.designation}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'courses' && (
+                        <div>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold">Course Management</h3>
+                                <button className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    <Plus size={20} />
+                                    Add New Course
+                                </button>
+                            </div>
+                            <div className="bg-white rounded-lg shadow overflow-hidden">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-gray-50 border-b">
+                                        <tr>
+                                            <th className="p-4 font-semibold text-gray-700">Code</th>
+                                            <th className="p-4 font-semibold text-gray-700">Name</th>
+                                            <th className="p-4 font-semibold text-gray-700">Credits</th>
+                                            <th className="p-4 font-semibold text-gray-700">Semester</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {courses.map(c => (
+                                            <tr key={c._id} className="border-b hover:bg-gray-50">
+                                                <td className="p-4 font-mono">{c.code}</td>
+                                                <td className="p-4">{c.name}</td>
+                                                <td className="p-4">{c.credits}</td>
+                                                <td className="p-4">{c.semester}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     )}

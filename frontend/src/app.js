@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import { authAPI } from '../src/services/api';
+import { authAPI } from './services/api';
 import LoginPage from './components/loginpage';
 import StudentDashboard from './components/studentdashboard';
 import AdminDashboard from './components/admindashboard';
