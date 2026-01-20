@@ -70,7 +70,8 @@ app.get('/', (req, res) => {
       results: '/api/results',
       staff: '/api/staff',
       analytics: '/api/analytics',
-      notifications: '/api/notifications'
+      notifications: '/api/notifications',
+      admin: '/api/admin'
     }
   });
 });
@@ -84,6 +85,7 @@ const resultRoutes = require('./routes/Resultroute');
 const staffRoutes = require('./routes/Staffroute');
 const notificationRoutes = require('./routes/Notificationroute');
 const analyticsRoutes = require('./routes/Analyticsroute');
+const adminRoutes = require('./routes/Adminroute');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -94,6 +96,7 @@ app.use('/api/results', resultRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 // Error handling
