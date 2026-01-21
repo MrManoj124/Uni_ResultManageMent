@@ -186,8 +186,6 @@ export const adminService = {
   }
 };
 
-export const courseService = courseAPI;
-
 // ============================================
 // STAFF API
 // ============================================
@@ -243,6 +241,8 @@ export const staffAPI = {
   }
 };
 
+export const staffService = staffAPI;
+
 // ============================================
 // COURSE API
 // ============================================
@@ -287,6 +287,8 @@ export const courseAPI = {
     return response.data;
   }
 };
+
+export const courseService = courseAPI;
 
 // ============================================
 // RESULT API
