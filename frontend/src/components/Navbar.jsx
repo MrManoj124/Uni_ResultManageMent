@@ -42,3 +42,4 @@ const Navbar = ({ user, onLogout, onToggleSidebar, sidebarOpen }) => {
 };
 
 export default Navbar;
+
