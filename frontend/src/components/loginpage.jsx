@@ -18,6 +18,9 @@ const loginPage = ({ onLogin }) => {
       const response = await authAPI.login(username, password);
       // authAPI.login returns the API payload: { success, message, data }
       // the actual user object is at response.data.user
+      console.log('Login response:', response);
+      console.log('User object:', response.data.user);
+      console.log('User role:', response.data.user?.role);
       onLogin(response.data.user);
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');

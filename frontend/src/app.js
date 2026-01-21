@@ -20,6 +20,8 @@ function App() {
   }, []);
 
   const handleLogin = (user) => {
+    console.log('handleLogin called with user:', user);
+    console.log('User role:', user?.role);
     setCurrentUser(user);
   };
 

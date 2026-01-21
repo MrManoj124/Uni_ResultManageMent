@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, User, BookOpen, FileText, BarChart3, Plus } from 'lucide-react';
 import Navbar from './Navbar';
 import AddModal, { FormInput, FormSelect } from './AddModal';
-import { adminService, courseService } from '../services/api';
+import { adminService, courseService, studentAPI, staffAPI } from '../services/api';
 
 const AdminDashboard = ({ user, onLogout }) => {
     const [dashboardData, setDashboardData] = useState(null);
@@ -26,14 +26,14 @@ const AdminDashboard = ({ user, onLogout }) => {
         try {
             const [stats, studentList, staffData, courseList] = await Promise.all([
                 adminService.getDashboard(),
-                adminService.createStudent ? api.get('/students') : null, // Assuming studentAPI.getAllStudents
-                api.get('/staff'),
-                api.get('/courses')
+                studentAPI.getAllStudents(),
+                staffAPI.getAllStaff(),
+                courseService.getAllCourses()
             ]);
-            setDashboardData(stats);
-            if (studentList) setStudents(studentList.data.data.students || studentList.data.data);
-            setStaffList(staffData.data.data.staff || staffData.data.data);
-            setCourses(courseList.data.data.courses || courseList.data.data);
+            setDashboardData(stats.data);
+            setStudents(studentList.data.students || studentList.data.data?.students || []);
+            setStaffList(staffData.data.staff || staffData.data.data?.staff || []);
+            setCourses(courseList.data.courses || courseList.data.data?.courses || []);
         } catch (error) {
             console.error('Error loading dashboard:', error);
         } finally {
