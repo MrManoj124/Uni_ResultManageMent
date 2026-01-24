@@ -1,33 +1,32 @@
 const express = require('express');
 const router = express.Router();
+const Student = require('../models/Student');
+const User = require('../models/User');
 const Result = require('../models/Result');
-const {sendEmail}   = require('../utils/email');
-
-
-
+const { sendEmail } = require('../utils/email');
 
 // Get all students
 exports.getAllStudents = async (req, res) => {
   try {
-    const { 
-      program, 
-      batch, 
+    const {
+      program,
+      batch,
       semester,
       status,
-      page = 1, 
-      limit = 20, 
-      search 
+      page = 1,
+      limit = 20,
+      search
     } = req.query;
-    
+
     const query = {};
-    
+
     // Filters
     if (program) query.program = program;
     if (batch) query.batch = batch;
     if (semester) query.currentSemester = semester;
     if (status) query['enrollment.status'] = status;
     else query['enrollment.status'] = 'Active'; // Default to active students
-    
+
     // Search by name, ID, or email
     if (search) {
       query.$or = [
@@ -38,7 +37,7 @@ exports.getAllStudents = async (req, res) => {
         { email: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     const students = await Student.find(query)
       .populate('userId', 'username email isActive')
       .populate('academicInfo.advisor', 'name.fullName staffId')
@@ -73,7 +72,7 @@ exports.getAllStudents = async (req, res) => {
 exports.getStudentById = async (req, res) => {
   try {
     const { studentId } = req.params;
-    
+
     // Check authorization - students can only view their own profile
     if (req.user.role === 'student' && req.user.studentId !== studentId) {
       return res.status(403).json({
@@ -94,7 +93,7 @@ exports.getStudentById = async (req, res) => {
     }
 
     // Get additional statistics
-    const resultCount = await Result.countDocuments({ 
+    const resultCount = await Result.countDocuments({
       studentId,
       status: 'published'
     });
@@ -125,10 +124,10 @@ exports.addStudent = async (req, res) => {
     const studentData = req.body;
 
     // Check if student ID already exists
-    const existingStudent = await Student.findOne({ 
-      studentId: studentData.studentId 
+    const existingStudent = await Student.findOne({
+      studentId: studentData.studentId
     });
-    
+
     if (existingStudent) {
       return res.status(400).json({
         success: false,
@@ -137,10 +136,10 @@ exports.addStudent = async (req, res) => {
     }
 
     // Check if email already exists
-    const existingEmail = await Student.findOne({ 
-      email: studentData.email 
+    const existingEmail = await Student.findOne({
+      email: studentData.email
     });
-    
+
     if (existingEmail) {
       return res.status(400).json({
         success: false,
@@ -151,7 +150,7 @@ exports.addStudent = async (req, res) => {
     // Generate temporary password
     const username = studentData.studentId;
     const tempPassword = 'student' + Math.random().toString(36).slice(-8);
-    
+
     // Create user account
     const user = await User.create({
       username,
@@ -201,7 +200,7 @@ exports.addStudent = async (req, res) => {
     if (error.name === 'ValidationError' && req.body.studentId) {
       await User.deleteOne({ studentId: req.body.studentId });
     }
-    
+
     res.status(500).json({
       success: false,
       error: error.message
@@ -218,7 +217,7 @@ exports.updateStudent = async (req, res) => {
 
     // Find student
     const student = await Student.findOne({ studentId });
-    
+
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -240,7 +239,7 @@ exports.updateStudent = async (req, res) => {
       // Students can only update specific fields
       const allowedFields = ['phone', 'address', 'guardian'];
       const updateFields = {};
-      
+
       allowedFields.forEach(field => {
         if (updates[field] !== undefined) {
           updateFields[field] = updates[field];
@@ -289,7 +288,7 @@ exports.deleteStudent = async (req, res) => {
     const { studentId } = req.params;
 
     const student = await Student.findOne({ studentId });
-    
+
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -342,7 +341,7 @@ exports.deleteStudent = async (req, res) => {
 exports.getStudentResults = async (req, res) => {
   try {
     const { studentId } = req.params;
-    
+
     // Check authorization
     if (req.user.role === 'student' && req.user.studentId !== studentId) {
       return res.status(403).json({
@@ -360,12 +359,12 @@ exports.getStudentResults = async (req, res) => {
       });
     }
 
-    const results = await Result.find({ 
+    const results = await Result.find({
       studentId,
       status: 'published'
     })
-    .populate('courseId', 'code name credits semester department')
-    .sort({ 'courseId.semester': 1, 'courseId.code': 1 });
+      .populate('courseId', 'code name credits semester department')
+      .sort({ 'courseId.semester': 1, 'courseId.code': 1 });
 
     // Calculate GPA
     let totalPoints = 0;
@@ -420,7 +419,7 @@ exports.getStudentResults = async (req, res) => {
 exports.calculateStudentGPA = async (req, res) => {
   try {
     const { studentId } = req.params;
-    
+
     const student = await Student.findOne({ studentId });
     if (!student) {
       return res.status(404).json({
@@ -512,12 +511,12 @@ exports.getStudentsByProgram = async (req, res) => {
   try {
     const { program } = req.params;
 
-    const students = await Student.find({ 
+    const students = await Student.find({
       program,
       'enrollment.status': 'Active'
     })
-    .select('studentId name.fullName email currentSemester academicInfo.currentGPA')
-    .sort({ studentId: 1 });
+      .select('studentId name.fullName email currentSemester academicInfo.currentGPA')
+      .sort({ studentId: 1 });
 
     res.json({
       success: true,
@@ -541,12 +540,12 @@ exports.getStudentsByBatch = async (req, res) => {
   try {
     const { batch } = req.params;
 
-    const students = await Student.find({ 
+    const students = await Student.find({
       batch,
       'enrollment.status': 'Active'
     })
-    .select('studentId name.fullName email program currentSemester')
-    .sort({ studentId: 1 });
+      .select('studentId name.fullName email program currentSemester')
+      .sort({ studentId: 1 });
 
     res.json({
       success: true,
@@ -574,7 +573,7 @@ exports.updateEnrollmentStatus = async (req, res) => {
     const { status } = req.body;
 
     const validStatuses = ['Active', 'Inactive', 'Graduated', 'Suspended', 'Withdrawn'];
-    
+
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
@@ -583,7 +582,7 @@ exports.updateEnrollmentStatus = async (req, res) => {
     }
 
     const student = await Student.findOne({ studentId });
-    
+
     if (!student) {
       return res.status(404).json({
         success: false,
@@ -592,7 +591,7 @@ exports.updateEnrollmentStatus = async (req, res) => {
     }
 
     student.enrollment.status = status;
-    
+
     // Update graduation date if status is Graduated
     if (status === 'Graduated') {
       student.enrollment.actualGraduation = new Date();
@@ -625,7 +624,7 @@ exports.addStudentNote = async (req, res) => {
     const { content } = req.body;
 
     const student = await Student.findOne({ studentId });
-    
+
     if (!student) {
       return res.status(404).json({
         success: false,
