@@ -1,4 +1,5 @@
 // src/components/AddModal.jsx
+
 import React from 'react';
 
 const AddModal = ({ isOpen, onClose, title, onSubmit, submitText = 'Submit', children }) => {
