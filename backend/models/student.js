@@ -46,6 +46,7 @@ const studentSchema = new mongoose.Schema({
       'Applied Mathematical and Computer Science'
     ]
   },
+
   name: {
     firstName: {
       type: String,
