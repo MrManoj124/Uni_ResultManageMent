@@ -23,18 +23,49 @@ const courseSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Semester is required']
   },
+  faculty: {
+    type: String,
+    required: [true, 'Faculty is required'],
+    enum: [
+      'Business',
+      'Technology',
+      'Applied Science'
+    ]
+  },
   department: {
     type: String,
+    required: [true, 'Department is required'],
     enum: [
-      'Information Technology',
-      'Computer Science',
-      'Software Engineering',
-      'Data Science',
+      // Business Faculty
+      'Banking Insurance',
+      'Business Management',
+      'Project Management',
+      // Technology Faculty
+      'Engineering',
+      'Computer Engineering',
+      // Applied Science Faculty
+      'Bio-Science',
       'Physical Science',
-      'Mathematics',
-      'Management',
-      'Other'
+      'Information and Communication Technology',
+      'Applied Mathematical and Computer Science'
     ]
+  },
+  typeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Type'
+  },
+  // Configurable weightages per course
+  icaWeightage: {
+    type: Number,
+    enum: [30, 40],
+    default: 40,
+    required: true
+  },
+  semesterExamWeightage: {
+    type: Number,
+    enum: [60, 70],
+    default: 60,
+    required: true
   },
   description: {
     type: String,
@@ -81,7 +112,7 @@ courseSchema.index({ department: 1 });
 courseSchema.index({ isActive: 1 });
 
 // Method to get enrolled students count
-courseSchema.methods.getEnrolledStudentsCount = async function() {
+courseSchema.methods.getEnrolledStudentsCount = async function () {
   const Result = mongoose.model('Result');
   return await Result.countDocuments({ courseId: this._id });
 };

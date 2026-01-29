@@ -9,10 +9,42 @@ const studentSchema = new mongoose.Schema({
     trim: true,
     match: [/^\d{4}\/[A-Z]+\/\d+$/, 'Student ID format: YYYY/DEPT/XX']
   },
+  indexNumber: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  typeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Type'
+  },
+  faculty: {
+    type: String,
+    enum: [
+      'Business',
+      'Technology',
+      'Applied Science'
+    ]
+  },
+  department: {
+    type: String,
+    enum: [
+      'Banking Insurance',
+      'Business Management',
+      'Project Management',
+      'Engineering',
+      'Computer Engineering',
+      'Bio-Science',
+      'Physical Science',
+      'Information and Communication Technology',
+      'Applied Mathematical and Computer Science'
+    ]
   },
   name: {
     firstName: {
@@ -35,7 +67,21 @@ const studentSchema = new mongoose.Schema({
   program: {
     type: String,
     required: [true, 'Program is required'],
-    enum: ['BSc IT', 'BSc CS', 'BSc SE', 'BSc DS', 'BEng', 'Other']
+    enum: [
+      // Business Programs
+      'BSc Banking Insurance',
+      'BSc Business Management',
+      'BSc Project Management',
+      // Technology Programs
+      'BEng Engineering',
+      'BEng Computer Engineering',
+      // Applied Science Programs
+      'BSc Bio-Science',
+      'BSc Physical Science',
+      'BSc IT',
+      'BSc Computer Science',
+      'Other'
+    ]
   },
   batch: {
     type: String,

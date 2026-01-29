@@ -36,18 +36,31 @@ const staffSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
   },
+  faculty: {
+    type: String,
+    required: [true, 'Faculty is required'],
+    enum: [
+      'Business',
+      'Technology',
+      'Applied Science'
+    ]
+  },
   department: {
     type: String,
     required: [true, 'Department is required'],
     enum: [
-      'Information Technology',
-      'Computer Science',
-      'Software Engineering',
-      'Data Science',
+      // Business Faculty
+      'Banking Insurance',
+      'Business Management',
+      'Project Management',
+      // Technology Faculty
+      'Engineering',
+      'Computer Engineering',
+      // Applied Science Faculty
+      'Bio-Science',
       'Physical Science',
-      'Mathematics',
-      'Management',
-      'Other'
+      'Information and Communication Technology',
+      'Applied Mathematical and Computer Science'
     ]
   },
   designation: {
@@ -130,6 +143,10 @@ const staffSchema = new mongoose.Schema({
   assignedCourses: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course'
+  }],
+  assignedTypes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Type'
   }],
   advisingStudents: [{
     type: mongoose.Schema.Types.ObjectId,

@@ -71,7 +71,8 @@ app.get('/', (req, res) => {
       staff: '/api/staff',
       analytics: '/api/analytics',
       notifications: '/api/notifications',
-      admin: '/api/admin'
+      admin: '/api/admin',
+      types: '/api/types'
     }
   });
 });
@@ -87,6 +88,7 @@ const staffRoutes = require('./routes/Staffroute');
 const notificationRoutes = require('./routes/Notificationroute');
 const analyticsRoutes = require('./routes/Analyticsroute');
 const adminRoutes = require('./routes/Adminroute');
+const typeRoutes = require('./routes/Typeroute');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -98,6 +100,7 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/types', typeRoutes);
 
 
 // Error handling

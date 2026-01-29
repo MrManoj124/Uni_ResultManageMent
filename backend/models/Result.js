@@ -11,15 +11,54 @@ const resultSchema = new mongoose.Schema({
     required: [true, 'Course ID is required'],
     ref: 'Course'
   },
+  typeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Type'
+  },
+  // Individual exam component marks
+  ica1Marks: {
+    type: Number,
+    min: [0, 'Marks cannot be negative'],
+    max: [100, 'Marks cannot exceed 100']
+  },
+  ica2Marks: {
+    type: Number,
+    min: [0, 'Marks cannot be negative'],
+    max: [100, 'Marks cannot exceed 100']
+  },
+  ica3Marks: {
+    type: Number,
+    min: [0, 'Marks cannot be negative'],
+    max: [100, 'Marks cannot exceed 100']
+  },
+  semesterExamMarks: {
+    type: Number,
+    min: [0, 'Marks cannot be negative'],
+    max: [100, 'Marks cannot exceed 100']
+  },
+  // Weightages (from course configuration)
+  icaWeightage: {
+    type: Number,
+    enum: [30, 40]
+  },
+  semesterWeightage: {
+    type: Number,
+    enum: [60, 70]
+  },
+  // Calculated final marks
+  finalMarks: {
+    type: Number,
+    min: [0, 'Marks cannot be negative'],
+    max: [100, 'Marks cannot exceed 100']
+  },
+  // Overall marks (same as finalMarks, kept for compatibility)
   marks: {
     type: Number,
-    required: [true, 'Marks are required'],
     min: [0, 'Marks cannot be negative'],
     max: [100, 'Marks cannot exceed 100']
   },
   grade: {
     type: String,
-    required: true,
     enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F']
   },
   gradePoints: {
@@ -69,6 +108,10 @@ const resultSchema = new mongoose.Schema({
     maxlength: 500
   },
   submittedForApproval: {
+    type: Boolean,
+    default: false
+  },
+  submittedToAdmin: {
     type: Boolean,
     default: false
   },
@@ -127,15 +170,37 @@ resultSchema.index({ studentId: 1, courseId: 1, academicYear: 1 }, { unique: tru
 resultSchema.index({ status: 1 });
 resultSchema.index({ uploadedBy: 1 });
 resultSchema.index({ publishedAt: -1 });
+resultSchema.index({ typeId: 1 });
 
-// Pre-validate middleware to calculate grade
-resultSchema.pre('validate', function () {
-  if (this.isModified('marks')) {
+// Pre-save middleware to calculate final marks
+resultSchema.pre('save', function () {
+  // Calculate final marks if all components are present
+  if (this.ica1Marks != null && this.ica2Marks != null &&
+    this.ica3Marks != null && this.semesterExamMarks != null &&
+    this.icaWeightage != null && this.semesterWeightage != null) {
+
+    // Calculate average ICA marks
+    const avgICAMarks = (this.ica1Marks + this.ica2Marks + this.ica3Marks) / 3;
+
+    // Calculate final marks based on weightages
+    this.finalMarks = (avgICAMarks * this.icaWeightage / 100) +
+      (this.semesterExamMarks * this.semesterWeightage / 100);
+
+    // Round to 2 decimal places
+    this.finalMarks = Math.round(this.finalMarks * 100) / 100;
+
+    // Set marks to finalMarks for compatibility
+    this.marks = this.finalMarks;
+  }
+
+  // Calculate grade if marks are present
+  if (this.marks != null) {
     const gradeInfo = calculateGrade(this.marks);
     this.grade = gradeInfo.grade;
     this.gradePoints = gradeInfo.points;
   }
 });
+
 
 // Helper function to calculate grade
 function calculateGrade(marks) {
@@ -194,6 +259,40 @@ resultSchema.methods.revise = async function (newMarks, userId, reason) {
   this.version += 1;
   this.status = 'revised';
 
+  return await this.save();
+};
+
+// Method to calculate final marks from exam components
+resultSchema.methods.calculateFinalMarks = function () {
+  if (this.ica1Marks != null && this.ica2Marks != null &&
+    this.ica3Marks != null && this.semesterExamMarks != null &&
+    this.icaWeightage != null && this.semesterWeightage != null) {
+
+    const avgICAMarks = (this.ica1Marks + this.ica2Marks + this.ica3Marks) / 3;
+    this.finalMarks = (avgICAMarks * this.icaWeightage / 100) +
+      (this.semesterExamMarks * this.semesterWeightage / 100);
+    this.finalMarks = Math.round(this.finalMarks * 100) / 100;
+    this.marks = this.finalMarks;
+
+    const gradeInfo = calculateGrade(this.marks);
+    this.grade = gradeInfo.grade;
+    this.gradePoints = gradeInfo.points;
+  }
+  return this;
+};
+
+// Method to submit result to admin
+resultSchema.methods.submitToAdmin = async function (userId) {
+  this.submittedToAdmin = true;
+  this.submittedForApproval = true;
+  this.submittedAt = new Date();
+  this.status = 'pending';
+  this.approvalHistory.push({
+    action: 'submitted',
+    by: userId,
+    at: new Date(),
+    comment: 'Result sheet submitted to admin for approval'
+  });
   return await this.save();
 };
 

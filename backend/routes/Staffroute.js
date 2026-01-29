@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const staffController = require('../controllers/staff');
+const examController = require('../controllers/exam');
 const { authenticate, authorize } = require('../middleware/auth');
 
 // All routes require authentication
@@ -48,5 +49,30 @@ router.put('/:staffId/permissions', authorize('admin'), staffController.updatePe
 
 // Get staff dashboard stats
 router.get('/:staffId/dashboard', authorize('admin', 'staff'), staffController.getDashboardStats);
+
+// ============================================
+// EXAM MARKS ENTRY ROUTES (Staff only)
+// ============================================
+
+// Enter ICA marks
+router.post('/exams/ica', authorize('staff'), examController.enterICAMarks);
+
+// Enter semester exam marks
+router.post('/exams/semester', authorize('staff'), examController.enterSemesterExamMarks);
+
+// Get exam marks for a student in a course
+router.get('/exams/:studentId/:courseId', authorize('staff'), examController.getStudentExamMarks);
+
+// Calculate final marks
+router.post('/results/calculate', authorize('staff'), examController.calculateFinalMarks);
+
+// Submit result sheet to admin
+router.post('/results/submit', authorize('staff'), examController.submitResultSheetToAdmin);
+
+// Get assigned types
+router.get('/types', authorize('staff'), examController.getAssignedTypes);
+
+// Get students by type
+router.get('/types/:typeId/students', authorize('staff'), examController.getStudentsByType);
 
 module.exports = router;
