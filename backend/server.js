@@ -8,6 +8,7 @@ const morgan = require('morgan');
 
 const app = express();
 
+
 // ============================================
 // MIDDLEWARE CONFIGURATION
 // ============================================
@@ -28,6 +29,7 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api/', limiter);
+
 
 // ============================================
 // DATABASE CONNECTION - FIXED ✅
@@ -51,6 +53,7 @@ mongoose.connection.on('error', (err) => {
 mongoose.connection.on('disconnected', () => {
   console.log('⚠️  MongoDB disconnected');
 });
+
 
 // ============================================
 // ROUTES
