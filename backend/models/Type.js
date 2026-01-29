@@ -11,6 +11,7 @@ const typeSchema = new mongoose.Schema({
         // Format: [Faculty Code][Year][Semester] e.g., B11, B12, T21, AS31
         match: [/^[A-Z]+[1-4][1-2]$/, 'Type ID format: [FacultyCode][Year][Semester]']
     },
+
     faculty: {
         type: String,
         required: [true, 'Faculty is required'],
