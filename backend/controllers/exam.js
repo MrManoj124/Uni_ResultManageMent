@@ -505,13 +505,3 @@ exports.getStudentExamMarks = async (req, res) => {
         });
     }
 };
-
-module.exports = {
-    enterICAMarks,
-    enterSemesterExamMarks,
-    calculateFinalMarks,
-    submitResultSheetToAdmin,
-    getAssignedTypes,
-    getStudentsByType,
-    getStudentExamMarks
-};
