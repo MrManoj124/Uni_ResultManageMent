@@ -51,6 +51,7 @@ const resultSchema = new mongoose.Schema({
     min: [0, 'Marks cannot be negative'],
     max: [100, 'Marks cannot exceed 100']
   },
+
   // Overall marks (same as finalMarks, kept for compatibility)
   marks: {
     type: Number,
