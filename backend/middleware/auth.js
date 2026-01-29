@@ -67,3 +67,6 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+// Alias for backwards compatibility - some routes import as 'protect'
+exports.protect = exports.authenticate;
