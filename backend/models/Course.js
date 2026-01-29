@@ -32,6 +32,7 @@ const courseSchema = new mongoose.Schema({
       'Applied Science'
     ]
   },
+
   department: {
     type: String,
     required: [true, 'Department is required'],
@@ -41,13 +42,10 @@ const courseSchema = new mongoose.Schema({
       'Business Management',
       'Project Management',
       // Technology Faculty
-      'Engineering',
-      'Computer Engineering',
+      'Information and Communication Technology',
       // Applied Science Faculty
       'Bio-Science',
       'Physical Science',
-      'Information and Communication Technology',
-      'Applied Mathematical and Computer Science'
     ]
   },
   typeId: {
